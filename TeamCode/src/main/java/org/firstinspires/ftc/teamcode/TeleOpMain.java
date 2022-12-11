@@ -31,37 +31,35 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "tele")
 
 public class tele extends LinearOpMode
 {
-    HardwarePushbot robot = new HardwarePushbot();
+    IntakeLiftCamera ILC = new IntakeLiftCamera(this);
+    Drivetrain drivetrain = new Drivetrain(this);
 
     private ElapsedTime clawButtonTimer = new ElapsedTime();
     private ElapsedTime dPadTimer = new ElapsedTime();
 
-    int down = 211;
-    int shortPos = -9200;
-    int mediumPos = -14600;
-    int highPos = -20520;
+    int newLeftArmPos;
+    int newRightArmPos;
 
     @Override public void runOpMode() {
 
-        robot.init(hardwareMap);
-
-        initEncoders();
+        ILC.initIntakeLift(hardwareMap);
+        drivetrain.initDrivetrain(hardwareMap);
+        drivetrain.initGyro(hardwareMap);
 
         // Wait until we're told to go
         waitForStart();
 
-        initEncoders();
+        drivetrain.initEncoders();
 
         clawButtonTimer.reset();
         dPadTimer.reset();
-        boolean clawButton = false;
+        boolean intakeButton = false;
 
         double speedScale = 0.5;
 
@@ -77,72 +75,56 @@ public class tele extends LinearOpMode
             final double FRPower = speedScale * (r * Math.sin(robotAngle) - rightX);
             final double BRPower = speedScale * (r * Math.cos(robotAngle) - rightX);
 
-            robot.frontLeftDrive.setPower(FLPower);
-            robot.backLeftDrive.setPower(BLPower);
-            robot.frontRightDrive.setPower(FRPower);
-            robot.backRightDrive.setPower(BRPower);
+            drivetrain.frontLeftDrive.setPower(FLPower);
+            drivetrain.backLeftDrive.setPower(BLPower);
+            drivetrain.frontRightDrive.setPower(FRPower);
+            drivetrain.backRightDrive.setPower(BRPower);
 
             if(gamepad2.right_bumper && clawButtonTimer.milliseconds() >= 50) {
                 clawButtonTimer.reset();
-                clawButton = !clawButton;
+                intakeButton = !intakeButton;
             }
-            if(clawButton) {
-                closeClaw();
+            if(intakeButton) {
+                ILC.intake();
             }
             else {
-                openClaw();
+                ILC.outtake();
             }
 
-            //move arm to level one, two and three as well as all the way down
+            // move arm to level one, two and three as well as all the way down
             if(gamepad2.a) {
-                armMove(down);
+                ILC.liftMove(ILC.groundJunctionPos);
             }
             else if(gamepad2.b) {
-                armMove(shortPos);
+                ILC.liftMove(ILC.lowJunctionPos);
             }
             else if(gamepad2.x) {
-                armMove(mediumPos);
+                ILC.liftMove(ILC.mediumJunctionPos);
             }
             else if(gamepad2.y) {
-                armMove(highPos);
+                ILC.liftMove(ILC.highJunctionPos);
             }
 
+            // micro adjust slide height
             if(gamepad2.dpad_up) {
-                armMove(robot.linearMotor.getCurrentPosition() - 100);
+                newLeftArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
+                newRightArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
+
+                int [] newPos = {newLeftArmPos, newRightArmPos};
+
+                ILC.liftMove(newPos);
                 dPadTimer.reset();
             }
             if(gamepad2.dpad_down) {
-                armMove(robot.linearMotor.getCurrentPosition() + 100);
+                newLeftArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
+                newRightArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
+
+                int [] newPos = {newLeftArmPos, newRightArmPos};
+
+                ILC.liftMove(newPos);
                 dPadTimer.reset();
             }
-
-            telemetry.addData("arm motor", robot.linearMotor.getCurrentPosition());
         }
-    }
-
-    public void openClaw() {
-        robot.armLeft.setPosition(0.5);
-        robot.armRight.setPosition(0.5);
-        sleep(500);
-    }
-
-    public void closeClaw() {
-        robot.armLeft.setPosition(0.1);
-        robot.armRight.setPosition(0.9);
-        sleep(500);
-    }
-
-    void armMove(int position) {
-        robot.linearMotor.setTargetPosition(position);
-        robot.linearMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.linearMotor.setPower(1);
-    }
-
-    void initEncoders() {
-        robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 }
 
