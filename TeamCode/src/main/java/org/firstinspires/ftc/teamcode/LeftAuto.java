@@ -31,24 +31,18 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 
-@Autonomous(name = "MainAutonomous")
+@Autonomous(name = "leftAuto")
 
-public class AutonomousMain extends LinearOpMode
+public class LeftAuto extends LinearOpMode
 {
-    IntakeLift intakeLift = new IntakeLift(this);
+    IntakeLiftCamera intakeLiftCamera = new IntakeLiftCamera(this);
     Drivetrain drivetrain = new Drivetrain(this);
 
     @Override public void runOpMode() {
 
-        intakeLift.initIntakeLift(hardwareMap);
+        intakeLiftCamera.initIntakeLift(hardwareMap);
         drivetrain.initDrivetrain(hardwareMap);
         drivetrain.initGyro(hardwareMap);
 

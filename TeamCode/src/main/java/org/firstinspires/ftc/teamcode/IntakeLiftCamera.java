@@ -1,21 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
-import static java.lang.Thread.sleep;
-
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-public class IntakeLift {
+public class IntakeLiftCamera {
     public DcMotorEx leftArmMotor;
     public DcMotorEx rightArmMotor;
 
@@ -24,25 +19,21 @@ public class IntakeLift {
 
     public WebcamName webcam;
 
+    CameraBlueOrange camera;
+
     static final double ArmSpeed = 1;
 
-    // need to measure
-    int leftHighJunctionPos = 1300;
-    int leftMediumJunctionPos = 2600;
-    int leftLowJunctionPos = 4751;
-    int leftGroundJunctionPos = 4751;
-
-    // need to measure
-    int rightHighJunctionPos = 1300;
-    int rightMediumJunctionPos = 2600;
-    int rightLowJunctionPos = 4751;
-    int rightGroundJunctionPos = 4751;
+    // need to measure [left, right]
+    int [] highJunctionPos = {1300, 1300};
+    int [] mediumJunctionPos = {2600, 2600};
+    int [] lowJunctionPos = {4751, 4751};
+    int [] groundJunctionPos = {4751, 4751};
 
     LinearOpMode opMode;
 
     ElapsedTime sleepTimer;
 
-    public IntakeLift(LinearOpMode op) {
+    public IntakeLiftCamera(LinearOpMode op) {
         opMode = op;
     }
 
@@ -54,29 +45,20 @@ public class IntakeLift {
         intakeRotateServo.setPower(-1);
     }
 
-    public void goToJunctionPosition(int position) {
-        if(position == 3) {
-            leftArmMotor.setTargetPosition(leftHighJunctionPos);
-            rightArmMotor.setTargetPosition(rightHighJunctionPos);
-        }
-        else if(position == 2) {
-            leftArmMotor.setTargetPosition(leftMediumJunctionPos);
-            rightArmMotor.setTargetPosition(rightMediumJunctionPos);
-        }
-        else if(position == 1) {
-            leftArmMotor.setTargetPosition(leftLowJunctionPos);
-            rightArmMotor.setTargetPosition(rightLowJunctionPos);
-        }
-        else {
-            leftArmMotor.setTargetPosition(leftGroundJunctionPos);
-            rightArmMotor.setTargetPosition(rightGroundJunctionPos);
-        }
+    public void liftMove(int [] position) {
+        leftArmMotor.setTargetPosition(position[0]);
+        leftArmMotor.setTargetPosition(position[1]);
 
         leftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         leftArmMotor.setPower(Math.abs(ArmSpeed));
         rightArmMotor.setPower(Math.abs(ArmSpeed));
+    }
+
+    public String getSignalPos() {
+        String position = camera.getStringPosition();
+        return position;
     }
 
     public void initIntakeLift(HardwareMap hwMap) {
@@ -89,8 +71,6 @@ public class IntakeLift {
         intakeRotateServo = hwMap.get(CRServoImplEx.class, "intakeRotateServo");
         intakePosServo = hwMap.get(ServoImplEx.class, "intakePosServo");
 
-        webcam = hwMap.get(WebcamName.class, "Webcam 1");
-
         leftArmMotor.setDirection(DcMotor.Direction.FORWARD);
 
         leftArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -98,6 +78,13 @@ public class IntakeLift {
         leftArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         leftArmMotor.setPower(0);
+    }
+
+    public void initCameraBlueOrange(HardwareMap hwMap) {
+        webcam = hwMap.get(WebcamName.class, "Webcam 1");
+
+        camera = new CameraBlueOrange(opMode.hardwareMap);
+        camera.initCamera();
     }
 
     private void sleep(double millisec) {

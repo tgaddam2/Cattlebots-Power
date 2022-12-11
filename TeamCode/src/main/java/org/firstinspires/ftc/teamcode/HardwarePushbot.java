@@ -57,7 +57,7 @@ public class HardwarePushbot
     public DcMotor backLeftDrive   = null;
     public DcMotor frontRightDrive = null;
     public DcMotor backRightDrive  = null;
-    public DcMotor linearMotor     = null;
+    public DcMotor leftArmMotor     = null;
 //    public Servo armLeft           = null;
 //    public Servo armRight          = null;
     public Servo armLeft;
@@ -82,7 +82,7 @@ public class HardwarePushbot
         backLeftDrive = hwMap.get(DcMotor.class, "BL");
         frontRightDrive = hwMap.get(DcMotor.class, "FR");
         backRightDrive = hwMap.get(DcMotor.class, "BR");
-        linearMotor = hwMap.get(DcMotor.class, "ArmMotor");
+        linearMotor = hwMap.get(DcMotor.class, "ArmMotorLeft");
         armLeft = hwMap.get(Servo.class, "ArmLeft");
         armRight = hwMap.get(Servo.class, "ArmRight");
 
