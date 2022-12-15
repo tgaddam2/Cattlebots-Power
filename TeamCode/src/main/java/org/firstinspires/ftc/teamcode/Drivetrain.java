@@ -10,13 +10,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
+import java.util.Locale;
+
 public class Drivetrain {
     public DcMotor frontLeftDrive  = null;
     public DcMotor backLeftDrive   = null;
     public DcMotor frontRightDrive = null;
     public DcMotor backRightDrive  = null;
 
-    static private final double     COUNTS_PER_MOTOR_REV    = 537.6 ;
+    static private final double     COUNTS_PER_MOTOR_REV    = 384.5 ;
     static private final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
     static private final double     WHEEL_DIAMETER_INCHES   = 96/25.4 ;     // For figuring circumference
     static private final double     WHEEL_COUNTS_PER_INCH   = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI);
@@ -36,7 +38,7 @@ public class Drivetrain {
         opMode = op;
     }
 
-    public void encoderDrive(double speed, double distance, double timeoutS) {
+    public void drive(double speed, double distance) {
         int newFrontLeftTarget;
         int newBackLeftTarget;
         int newFrontRightTarget;
@@ -74,7 +76,7 @@ public class Drivetrain {
             // always end the motion as soon as possible.
             // However, if you require that BOTH motors have finished their moves before the robot continues
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
-            while (opMode.opModeIsActive() && (runtime.seconds() < timeoutS) && (frontLeftDrive.isBusy() && frontRightDrive.isBusy())) {
+            while (opMode.opModeIsActive() && (frontLeftDrive.isBusy() && frontRightDrive.isBusy())) {
 
                 // Display it for the driver.
                 opMode.telemetry.addData("Path1",  "Running to FL %7d :FR %7d :BL %7d :BR %7d", newFrontLeftTarget,  newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
@@ -94,11 +96,13 @@ public class Drivetrain {
         }
     }
 
-    public void encoderDriveStrafe(int direction, double speed, double distance, double timeoutS) {
+    public void strafe(String direction, double speed, double distance) {
         int newFrontLeftTarget;
         int newBackLeftTarget;
         int newFrontRightTarget;
         int newBackRightTarget;
+
+        direction = direction.toLowerCase();
 
         // Ensure that the opmode is still active
         if (opMode.opModeIsActive()) {
@@ -108,12 +112,12 @@ public class Drivetrain {
             newFrontRightTarget = frontRightDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
             newBackRightTarget = backRightDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
 
-            if (direction == 0) {
+            if (direction.equals("left")) {
                 newFrontLeftTarget *= Reverse;
                 newBackLeftTarget *= Forward;
                 newFrontRightTarget *= Forward;
                 newBackRightTarget *= Reverse;
-            } else if (direction == 1) {
+            } else if (direction.equals("right")) {
                 newFrontLeftTarget *= Forward;
                 newBackLeftTarget *= Reverse;
                 newFrontRightTarget *= Reverse;
@@ -137,7 +141,7 @@ public class Drivetrain {
             frontRightDrive.setPower(Math.abs(speed));
             backRightDrive.setPower(Math.abs(speed));
 
-            while (opMode.opModeIsActive() && (runtime.seconds() < timeoutS) && (frontLeftDrive.isBusy() && frontRightDrive.isBusy())) {
+            while (opMode.opModeIsActive() && (frontLeftDrive.isBusy() && frontRightDrive.isBusy())) {
 
                 // Display it for the driver.
                 opMode.telemetry.addData("Path1",  "Running to FL %7d :FR %7d :BL %7d :BR %7d", newFrontLeftTarget,  newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
@@ -157,7 +161,7 @@ public class Drivetrain {
         }
     }
 
-    void gyroTurn(double power, double angle, String direction) {
+    void turn(double power, double angle, String direction) {
 
         frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

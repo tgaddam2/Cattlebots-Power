@@ -14,6 +14,9 @@ public class IntakeLiftCamera {
     public DcMotorEx leftArmMotor;
     public DcMotorEx rightArmMotor;
 
+    public DcMotorEx ExtendSpoolMotor;
+    public DcMotorEx RetractSpoolMotor;
+
     public CRServoImplEx intakeRotateServo;
     public ServoImplEx intakePosServo;
 
@@ -24,10 +27,10 @@ public class IntakeLiftCamera {
     static final double ArmSpeed = 1;
 
     // need to measure [left, right]
-    int [] highJunctionPos = {1300, 1300};
-    int [] mediumJunctionPos = {2600, 2600};
-    int [] lowJunctionPos = {4751, 4751};
-    int [] groundJunctionPos = {4751, 4751};
+    int [] highJunctionPos = {1300, 1300, 120, 120};
+    int [] mediumJunctionPos = {2600, 2600, 120, 120};
+    int [] lowJunctionPos = {4751, 4751, 120, 120};
+    int [] groundJunctionPos = {4751, 4751, 120, 120};
 
     LinearOpMode opMode;
 
@@ -45,9 +48,26 @@ public class IntakeLiftCamera {
         intakeRotateServo.setPower(-1);
     }
 
-    public void liftMove(int [] position) {
+    public void liftToPos(int [] position) {
         leftArmMotor.setTargetPosition(position[0]);
-        leftArmMotor.setTargetPosition(position[1]);
+        rightArmMotor.setTargetPosition(position[1]);
+
+        ExtendSpoolMotor.setTargetPosition(position[2]);
+        RetractSpoolMotor.setTargetPosition(position[3]);
+
+        leftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        leftArmMotor.setPower(Math.abs(ArmSpeed));
+        rightArmMotor.setPower(Math.abs(ArmSpeed));
+    }
+    
+    public void adjustLift(String direction) {
+        leftArmMotor.setTargetPosition(0);
+        rightArmMotor.setTargetPosition(1);
+
+        ExtendSpoolMotor.setTargetPosition(2);
+        RetractSpoolMotor.setTargetPosition(3);
 
         leftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -61,12 +81,15 @@ public class IntakeLiftCamera {
         return position;
     }
 
-    public void initIntakeLift(HardwareMap hwMap) {
+    public void initIntakeLiftCamera(HardwareMap hwMap) {
         sleepTimer = new ElapsedTime();
 
         // Define and Initialize Motors
-        leftArmMotor = hwMap.get(DcMotorEx.class, "ArmMotorLeft");
-        rightArmMotor = hwMap.get(DcMotorEx.class, "ArmMotorRight");
+        leftArmMotor = hwMap.get(DcMotorEx.class, "LiftMotorLeft");
+        rightArmMotor = hwMap.get(DcMotorEx.class, "LiftMotorRight");
+
+        ExtendSpoolMotor = hwMap.get(DcMotorEx.class, "ExtendSpoolMotor");
+        RetractSpoolMotor = hwMap.get(DcMotorEx.class, "RetractSpoolMotor");
 
         intakeRotateServo = hwMap.get(CRServoImplEx.class, "intakeRotateServo");
         intakePosServo = hwMap.get(ServoImplEx.class, "intakePosServo");

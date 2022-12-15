@@ -37,14 +37,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public class LeftAuto extends LinearOpMode
 {
-    IntakeLiftCamera intakeLiftCamera = new IntakeLiftCamera(this);
-    Drivetrain drivetrain = new Drivetrain(this);
+    IntakeLiftCamera ILC = new IntakeLiftCamera(this);
+    Drivetrain DT = new Drivetrain(this);
 
     @Override public void runOpMode() {
 
-        intakeLiftCamera.initIntakeLift(hardwareMap);
-        drivetrain.initDrivetrain(hardwareMap);
-        drivetrain.initGyro(hardwareMap);
+        ILC.initIntakeLiftCamera(hardwareMap);
+        DT.initDrivetrain(hardwareMap);
+        DT.initGyro(hardwareMap);
 
         // Wait until we're told to go
         waitForStart();
@@ -53,7 +53,16 @@ public class LeftAuto extends LinearOpMode
         while (opModeIsActive()) {
             telemetry.update();
 
+            String position = ILC.getSignalPos().toLowerCase();
+            DT.drive(0.7, 24);
 
+            if(position.equals("left")) {
+                DT.strafe("right", 0.7, 24);
+            } else if(position.equals("left")) {
+                DT.strafe("left", 0.7, 24);
+            } else {
+                DT.turn(0.5, 180, "right");
+            }
 
             break;
         }

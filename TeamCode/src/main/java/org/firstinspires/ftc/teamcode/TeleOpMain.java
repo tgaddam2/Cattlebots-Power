@@ -19,7 +19,7 @@ public class TeleOpMain extends LinearOpMode
 
     @Override public void runOpMode() {
 
-        ILC.initIntakeLift(hardwareMap);
+        ILC.initIntakeLiftCamera(hardwareMap);
         drivetrain.initDrivetrain(hardwareMap);
         drivetrain.initGyro(hardwareMap);
 
@@ -51,6 +51,7 @@ public class TeleOpMain extends LinearOpMode
             drivetrain.frontRightDrive.setPower(FRPower);
             drivetrain.backRightDrive.setPower(BRPower);
 
+            // turn intake on and off
             if(gamepad2.right_bumper && clawButtonTimer.milliseconds() >= 50) {
                 clawButtonTimer.reset();
                 intakeButton = !intakeButton;
@@ -64,16 +65,16 @@ public class TeleOpMain extends LinearOpMode
 
             // move arm to level one, two and three as well as all the way down
             if(gamepad2.a) {
-                ILC.liftMove(ILC.groundJunctionPos);
+                ILC.liftToPos(ILC.groundJunctionPos);
             }
             else if(gamepad2.b) {
-                ILC.liftMove(ILC.lowJunctionPos);
+                ILC.liftToPos(ILC.lowJunctionPos);
             }
             else if(gamepad2.x) {
-                ILC.liftMove(ILC.mediumJunctionPos);
+                ILC.liftToPos(ILC.mediumJunctionPos);
             }
             else if(gamepad2.y) {
-                ILC.liftMove(ILC.highJunctionPos);
+                ILC.liftToPos(ILC.highJunctionPos);
             }
 
             // micro adjust slide height
@@ -83,7 +84,7 @@ public class TeleOpMain extends LinearOpMode
 
                 int [] newPos = {newLeftArmPos, newRightArmPos};
 
-                ILC.liftMove(newPos);
+                ILC.liftToPos(newPos);
                 dPadTimer.reset();
             }
             if(gamepad2.dpad_down) {
@@ -92,7 +93,7 @@ public class TeleOpMain extends LinearOpMode
 
                 int [] newPos = {newLeftArmPos, newRightArmPos};
 
-                ILC.liftMove(newPos);
+                ILC.liftToPos(newPos);
                 dPadTimer.reset();
             }
         }
