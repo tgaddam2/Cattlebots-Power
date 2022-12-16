@@ -9,6 +9,9 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvInternalCamera;
 
 public class IntakeLiftCamera {
     public DcMotorEx leftArmMotor;
@@ -24,7 +27,8 @@ public class IntakeLiftCamera {
 
     CameraBlueOrange camera;
 
-    static final double ArmSpeed = 1;
+    static final double ArmSpeed = 0.3;
+    static final double SpoolSpeed = 1;
 
     // need to measure [left, right]
     int [] highJunctionPos = {1300, 1300, 120, 120};
@@ -36,16 +40,22 @@ public class IntakeLiftCamera {
 
     ElapsedTime sleepTimer;
 
+    CameraBlueOrange.SEDPipeline pipeline = new CameraBlueOrange.SEDPipeline();
+
     public IntakeLiftCamera(LinearOpMode op) {
         opMode = op;
     }
 
     public void intake() {
-        intakeRotateServo.setPower(1);
+        intakeRotateServo.setPower(-1);
     }
 
     public void outtake() {
-        intakeRotateServo.setPower(-1);
+        intakeRotateServo.setPower(1);
+    }
+
+    public void offtake() {
+        intakeRotateServo.setPower(0);
     }
 
     public void liftToPos(int [] position) {
@@ -63,17 +73,113 @@ public class IntakeLiftCamera {
     }
     
     public void adjustLift(String direction) {
-        leftArmMotor.setTargetPosition(0);
-        rightArmMotor.setTargetPosition(1);
-
-        ExtendSpoolMotor.setTargetPosition(2);
-        RetractSpoolMotor.setTargetPosition(3);
+        ExtendSpoolMotor.setTargetPosition(500);
+        RetractSpoolMotor.setTargetPosition(500);
 
         leftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         leftArmMotor.setPower(Math.abs(ArmSpeed));
         rightArmMotor.setPower(Math.abs(ArmSpeed));
+    }
+
+    public void setAngle(int newAngle) {
+
+    }
+
+    public void adjustAngle(String direction) {
+
+    }
+
+    public void updateLiftArm(int targetHeight) {
+////        int AngleValue = (int) (targetAngle * 537.7 / 360);
+//        if (!ExtendSpoolMotor.isBusy()) {
+//            ExtendSpoolMotor.setPower(0);
+//        }
+//        if (!RetractSpoolMotor.isBusy()) {
+//            RetractSpoolMotor.setPower(0);
+//        }
+//
+//        int targetExtendStringValue = (int) (537.7 * (calcDistExtend(50, targetHeight) - calcDistExtend(50, 0)) / 107.0);
+//        int targetRetractStringValue = (int) (537.7 * (calcDistRetract(50, targetHeight) - calcDistRetract(50, 0)) / 107.0);
+////
+//        if (Math.abs(ExtendSpoolMotor.getCurrentPosition() - targetExtendStringValue) <= 10) {
+//            ExtendSpoolMotor.setTargetPosition(ExtendSpoolMotor.getCurrentPosition());
+//            RetractSpoolMotor.setTargetPosition(ExtendSpoolMotor.getCurrentPosition());
+//            RetractSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            ExtendSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        } else if (ExtendSpoolMotor.getCurrentPosition() > targetExtendStringValue) {
+//            RetractSpoolMotor.setTargetPosition(targetRetractStringValue);
+//            RetractSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            RetractSpoolMotor.setPower(1);
+//        } else {
+//            ExtendSpoolMotor.setTargetPosition(targetExtendStringValue);
+//            ExtendSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            ExtendSpoolMotor.setPower(1);
+//        }
+//
+////            }
+        int targetExtendStringValue = (int) (537.7 * (targetHeight) / 107.0);
+        int targetRetractStringValue = (int) (537.7 * (targetHeight) / 107.0);
+
+        int extendSpoolDifference = ((targetExtendStringValue - ExtendSpoolMotor.getCurrentPosition()));
+        int retractSpoolDifference = ((targetRetractStringValue - RetractSpoolMotor.getCurrentPosition()));
+//        int averageSpoolDifference = (extendSpoolDifference + retractSpoolDifference)/2;
+
+        if (Math.abs(extendSpoolDifference) <= 50) {
+            ExtendSpoolMotor.setTargetPosition(ExtendSpoolMotor.getCurrentPosition());
+            ExtendSpoolMotor.setPower(1);
+            ExtendSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        } else {
+            ExtendSpoolMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            if (extendSpoolDifference > 0) {
+                ExtendSpoolMotor.setPower(Math.abs(SpoolSpeed));
+            } else {
+                ExtendSpoolMotor.setPower(-0.3 * Math.abs(SpoolSpeed));
+            }
+        }
+
+        if (Math.abs(retractSpoolDifference) <= 50) {
+            RetractSpoolMotor.setTargetPosition(RetractSpoolMotor.getCurrentPosition());
+            RetractSpoolMotor.setPower(1);
+            RetractSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        } else {
+            RetractSpoolMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            if (retractSpoolDifference > 0) {
+                RetractSpoolMotor.setPower(0.3 * Math.abs(SpoolSpeed));
+            } else {
+                RetractSpoolMotor.setPower(-1 * Math.abs(SpoolSpeed));
+            }
+        }
+
+
+//        if (Math.abs(AngleValue - leftArmMotor.getCurrentPosition()) >= 10) {
+//            int ArmMotorSign = 1;
+//
+//            if (AngleValue - leftArmMotor.getCurrentPosition() < 0) {
+//                ArmMotorSign = -1;
+//
+//            if (Math.abs(averageSpoolDifference) <= 5) {
+//                leftArmMotor.setPower(ArmMotorSign * ArmSpeed);
+//                rightArmMotor.setPower(ArmMotorSign * ArmSpeed);
+//            } else {
+//                int MotorSpeedRatio = ((Math.abs(AngleValue - leftArmMotor.getCurrentPosition())))/averageSpoolDifference;
+//
+//                leftArmMotor.setPower(ArmMotorSign * Math.abs(MotorSpeedRatio * SpoolSpeed));
+//                rightArmMotor.setPower(ArmMotorSign * Math.abs(MotorSpeedRatio * SpoolSpeed));
+//            }
+//        } else {
+//            leftArmMotor.setPower(0);
+//            rightArmMotor.setPower(0);
+////        }
+    }
+
+    public int calcDistExtend(int angle, int h) {
+        return h - (int) Math.sqrt(6044 - 6192 * Math.cos(angle * 3.1416/180 + 0.519));
+    }
+
+    public int calcDistRetract(int angle, int h) {
+        return (int) Math.sqrt(9360 + Math.pow((375 + h), 2) - 192 * Math.sqrt(400 + Math.pow((375 + h), 2)) * Math.cos(angle * 3.1416/180 + 0.0533));
     }
 
     public String getSignalPos() {
@@ -91,10 +197,12 @@ public class IntakeLiftCamera {
         ExtendSpoolMotor = hwMap.get(DcMotorEx.class, "ExtendSpoolMotor");
         RetractSpoolMotor = hwMap.get(DcMotorEx.class, "RetractSpoolMotor");
 
-        intakeRotateServo = hwMap.get(CRServoImplEx.class, "intakeRotateServo");
-        intakePosServo = hwMap.get(ServoImplEx.class, "intakePosServo");
+        intakeRotateServo = hwMap.get(CRServoImplEx.class, "IntakeRotateServo");
+        intakePosServo = hwMap.get(ServoImplEx.class, "IntakePosServo");
 
         leftArmMotor.setDirection(DcMotor.Direction.FORWARD);
+        ExtendSpoolMotor.setDirection(DcMotor.Direction.REVERSE);
+        RetractSpoolMotor.setDirection(DcMotor.Direction.REVERSE);
 
         leftArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 

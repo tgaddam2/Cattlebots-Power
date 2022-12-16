@@ -34,6 +34,8 @@ public class TeleOpMain extends LinearOpMode
 
         double speedScale = 0.5;
 
+        int currentTargetHeight = 0;
+
         // Loop and update the dashboard
         while (opModeIsActive()) {
             telemetry.update();
@@ -52,7 +54,7 @@ public class TeleOpMain extends LinearOpMode
             drivetrain.backRightDrive.setPower(BRPower);
 
             // turn intake on and off
-            if(gamepad2.right_bumper && clawButtonTimer.milliseconds() >= 50) {
+            if(gamepad2.right_bumper && clawButtonTimer.milliseconds() >= 250) {
                 clawButtonTimer.reset();
                 intakeButton = !intakeButton;
             }
@@ -63,39 +65,48 @@ public class TeleOpMain extends LinearOpMode
                 ILC.outtake();
             }
 
-            // move arm to level one, two and three as well as all the way down
-            if(gamepad2.a) {
-                ILC.liftToPos(ILC.groundJunctionPos);
-            }
-            else if(gamepad2.b) {
-                ILC.liftToPos(ILC.lowJunctionPos);
-            }
-            else if(gamepad2.x) {
-                ILC.liftToPos(ILC.mediumJunctionPos);
-            }
-            else if(gamepad2.y) {
-                ILC.liftToPos(ILC.highJunctionPos);
-            }
-
-            // micro adjust slide height
             if(gamepad2.dpad_up) {
-                newLeftArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-                newRightArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-
-                int [] newPos = {newLeftArmPos, newRightArmPos};
-
-                ILC.liftToPos(newPos);
-                dPadTimer.reset();
+                currentTargetHeight += 1;
             }
             if(gamepad2.dpad_down) {
-                newLeftArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-                newRightArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-
-                int [] newPos = {newLeftArmPos, newRightArmPos};
-
-                ILC.liftToPos(newPos);
-                dPadTimer.reset();
+                currentTargetHeight -= 1;
             }
+
+            ILC.updateLiftArm(currentTargetHeight);
+//
+//            // move arm to level one, two and three as well as all the way down
+//            if(gamepad2.a) {
+//                ILC.liftToPos(ILC.groundJunctionPos);
+//            }
+//            else if(gamepad2.b) {
+//                ILC.liftToPos(ILC.lowJunctionPos);
+//            }
+//            else if(gamepad2.x) {
+//                ILC.liftToPos(ILC.mediumJunctionPos);
+//            }
+//            else if(gamepad2.y) {
+//                ILC.liftToPos(ILC.highJunctionPos);
+//            }
+//
+//            // micro adjust slide height
+//            if(gamepad2.dpad_up) {
+//                newLeftArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
+//                newRightArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
+//
+//                int [] newPos = {newLeftArmPos, newRightArmPos};
+//
+//                ILC.liftToPos(newPos);
+//                dPadTimer.reset();
+//            }
+//            if(gamepad2.dpad_down) {
+//                newLeftArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
+//                newRightArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
+//
+//                int [] newPos = {newLeftArmPos, newRightArmPos};
+//
+//                ILC.liftToPos(newPos);
+//                dPadTimer.reset();
+//            }
         }
     }
 }

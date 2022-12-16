@@ -32,17 +32,25 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
+
 
 @Autonomous(name = "leftAuto")
 
-public class LeftAuto extends LinearOpMode
-{
+public class LeftAuto extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain DT = new Drivetrain(this);
 
+    CameraBlueOrange.SEDPipeline pipeline;
+
     @Override public void runOpMode() {
+        initCamera();
 
         ILC.initIntakeLiftCamera(hardwareMap);
+        ILC.initCameraBlueOrange(hardwareMap);
         DT.initDrivetrain(hardwareMap);
         DT.initGyro(hardwareMap);
 
@@ -56,7 +64,7 @@ public class LeftAuto extends LinearOpMode
             String position = ILC.getSignalPos().toLowerCase();
             DT.drive(0.7, 24);
 
-            if(position.equals("left")) {
+            if(position.equals("right")) {
                 DT.strafe("right", 0.7, 24);
             } else if(position.equals("left")) {
                 DT.strafe("left", 0.7, 24);
@@ -66,5 +74,34 @@ public class LeftAuto extends LinearOpMode
 
             break;
         }
+    }
+
+    public void initCamera() {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        OpenCvInternalCamera phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        pipeline = new CameraBlueOrange.SEDPipeline();
+        phoneCam.setPipeline(pipeline);
+
+        // We set the viewport policy to optimized view so the preview doesn't appear 90 deg
+        // out when the RC activity is in portrait. We do our actual image processing assuming
+        // landscape orientation, though. m mm
+        phoneCam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
+
+        phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                phoneCam.startStreaming(320,240, OpenCvCameraRotation.SIDEWAYS_LEFT);
+            }
+
+            @Override
+            public void onError(int errorCode)
+            {
+                /*
+                 * This will be called if the camera could not be opened
+                 */
+            }
+        });
     }
 }

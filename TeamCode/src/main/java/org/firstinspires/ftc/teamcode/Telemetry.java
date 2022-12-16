@@ -4,18 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "TeleOpMain")
+@TeleOp(name = "Telemetry")
 
-public class TeleOpMain extends LinearOpMode
+public class Telemetry extends LinearOpMode
 {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain drivetrain = new Drivetrain(this);
-
-    private ElapsedTime clawButtonTimer = new ElapsedTime();
-    private ElapsedTime dPadTimer = new ElapsedTime();
-
-    int newLeftArmPos;
-    int newRightArmPos;
 
     @Override public void runOpMode() {
 
@@ -28,77 +22,20 @@ public class TeleOpMain extends LinearOpMode
 
         drivetrain.initEncoders();
 
-        clawButtonTimer.reset();
-        dPadTimer.reset();
-        boolean intakeButton = false;
-
-        double speedScale = 0.5;
-
         // Loop and update the dashboard
         while (opModeIsActive()) {
             telemetry.update();
-            // Control Robot Movement
-            double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-            double robotAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-            double rightX = gamepad1.right_stick_x;
-            final double FLPower = speedScale * (r * Math.cos(robotAngle) + rightX);
-            final double BLPower = speedScale * (r * Math.sin(robotAngle) + rightX);
-            final double FRPower = speedScale * (r * Math.sin(robotAngle) - rightX);
-            final double BRPower = speedScale * (r * Math.cos(robotAngle) - rightX);
 
-            drivetrain.frontLeftDrive.setPower(FLPower);
-            drivetrain.backLeftDrive.setPower(BLPower);
-            drivetrain.frontRightDrive.setPower(FRPower);
-            drivetrain.backRightDrive.setPower(BRPower);
+            telemetry.addData("FR: %d", drivetrain.frontRightDrive.getCurrentPosition());
+            telemetry.addData("FL: %d", drivetrain.frontLeftDrive.getCurrentPosition());
+            telemetry.addData("BR: %d", drivetrain.backRightDrive.getCurrentPosition());
+            telemetry.addData("BL: %d\n", drivetrain.backLeftDrive.getCurrentPosition());
 
-            // turn intake on and off
-            if(gamepad2.right_bumper && clawButtonTimer.milliseconds() >= 50) {
-                clawButtonTimer.reset();
-                intakeButton = !intakeButton;
-            }
-            if(intakeButton) {
-                ILC.intake();
-            }
-            else {
-                ILC.outtake();
-            }
+            telemetry.addData("Left Arm Motor: %d", ILC.leftArmMotor.getCurrentPosition());
+            telemetry.addData("Right Arm Motor: %d\n", ILC.rightArmMotor.getCurrentPosition());
 
-            ILC.updateLiftArm(0, 0);
-//
-//            // move arm to level one, two and three as well as all the way down
-//            if(gamepad2.a) {
-//                ILC.liftToPos(ILC.groundJunctionPos);
-//            }
-//            else if(gamepad2.b) {
-//                ILC.liftToPos(ILC.lowJunctionPos);
-//            }
-//            else if(gamepad2.x) {
-//                ILC.liftToPos(ILC.mediumJunctionPos);
-//            }
-//            else if(gamepad2.y) {
-//                ILC.liftToPos(ILC.highJunctionPos);
-//            }
-//
-//            // micro adjust slide height
-//            if(gamepad2.dpad_up) {
-//                newLeftArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-//                newRightArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-//
-//                int [] newPos = {newLeftArmPos, newRightArmPos};
-//
-//                ILC.liftToPos(newPos);
-//                dPadTimer.reset();
-//            }
-//            if(gamepad2.dpad_down) {
-//                newLeftArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-//                newRightArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-//
-//                int [] newPos = {newLeftArmPos, newRightArmPos};
-//
-//                ILC.liftToPos(newPos);
-//                dPadTimer.reset();
-//            }
+            telemetry.addData("Extend Spool Motor: %d", ILC.ExtendSpoolMotor.getCurrentPosition());
+            telemetry.addData("Retract Spool Motor: %d", ILC.RetractSpoolMotor.getCurrentPosition());
         }
     }
 }
-

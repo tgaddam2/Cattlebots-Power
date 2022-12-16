@@ -100,7 +100,7 @@ public class CameraBlueOrange
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(50,160);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(20,180);
         static final int REGION_WIDTH = 25;
         static final int REGION_HEIGHT = 15;
 

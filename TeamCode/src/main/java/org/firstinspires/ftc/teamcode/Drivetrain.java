@@ -30,7 +30,7 @@ public class Drivetrain {
 
     IMU imu;
     IMU.Parameters parameters;
-    YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+    YawPitchRollAngles angles;
 
     LinearOpMode opMode;
 
@@ -230,6 +230,7 @@ public class Drivetrain {
 
 
         imu = hwMap.get(IMU.class, "imu");
+        angles = imu.getRobotYawPitchRollAngles();
         imu.initialize(parameters);
     }
 
