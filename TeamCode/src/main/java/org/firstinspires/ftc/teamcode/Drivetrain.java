@@ -23,8 +23,8 @@ public class Drivetrain {
     static private final double     WHEEL_DIAMETER_INCHES   = 96/25.4 ;     // For figuring circumference
     static private final double     WHEEL_COUNTS_PER_INCH   = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI);
 
-    static private final int Reverse = -1;
-    static private final int Forward = 1;
+    static private final int Reverse = 1;
+    static private final int Forward = -1;
 
     private ElapsedTime runtime = new ElapsedTime();
 

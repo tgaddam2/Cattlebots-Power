@@ -36,6 +36,7 @@ public class Telemetry extends LinearOpMode
 
             telemetry.addData("Extend Spool Motor: %d", ILC.ExtendSpoolMotor.getCurrentPosition());
             telemetry.addData("Retract Spool Motor: %d", ILC.RetractSpoolMotor.getCurrentPosition());
+
         }
     }
 }

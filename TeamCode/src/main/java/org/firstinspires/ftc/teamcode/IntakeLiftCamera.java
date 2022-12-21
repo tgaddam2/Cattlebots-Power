@@ -91,6 +91,49 @@ public class IntakeLiftCamera {
 
     }
 
+    public void updateExtendSpool(int targetHeight) {
+        int targetExtendStringValue = (int) (537.7 * (targetHeight) / 107.0);
+
+//        int extendSpoolDifference = ((targetExtendStringValue - ExtendSpoolMotor.getCurrentPosition()));
+//
+//        if (Math.abs(extendSpoolDifference) <= 50) {
+//            ExtendSpoolMotor.setPower(0);
+//        } else {
+//            ExtendSpoolMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            if (extendSpoolDifference > 0) {
+//                ExtendSpoolMotor.setPower(Math.abs(SpoolSpeed));
+//            } else {
+//                ExtendSpoolMotor.setPower(-0.3 * Math.abs(SpoolSpeed));
+//            }
+//        }
+
+        ExtendSpoolMotor.setTargetPosition(targetExtendStringValue);
+        ExtendSpoolMotor.setPower(0.5);
+        ExtendSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void updateRetractSpool(int targetHeight) {
+        int targetRetractStringValue = (int) (537.7 * (targetHeight) / 107.0);
+
+//        int retractSpoolDifference = ((targetRetractStringValue - RetractSpoolMotor.getCurrentPosition()));
+//
+//
+//        if (Math.abs(retractSpoolDifference) <= 50) {
+//            RetractSpoolMotor.setPower(0);
+//        } else {
+//            RetractSpoolMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            if (retractSpoolDifference > 0) {
+//                RetractSpoolMotor.setPower(0.3 * Math.abs(SpoolSpeed));
+//            } else {
+//                RetractSpoolMotor.setPower(-1 * Math.abs(SpoolSpeed));
+//            }
+//        }
+
+        RetractSpoolMotor.setTargetPosition(targetRetractStringValue);
+        RetractSpoolMotor.setPower(0.5);
+        RetractSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
     public void updateLiftArm(int targetHeight) {
 ////        int AngleValue = (int) (targetAngle * 537.7 / 360);
 //        if (!ExtendSpoolMotor.isBusy()) {
@@ -127,9 +170,10 @@ public class IntakeLiftCamera {
 //        int averageSpoolDifference = (extendSpoolDifference + retractSpoolDifference)/2;
 
         if (Math.abs(extendSpoolDifference) <= 50) {
-            ExtendSpoolMotor.setTargetPosition(ExtendSpoolMotor.getCurrentPosition());
-            ExtendSpoolMotor.setPower(1);
-            ExtendSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            ExtendSpoolMotor.setTargetPosition(ExtendSpoolMotor.getCurrentPosition());
+//            ExtendSpoolMotor.setPower(1);
+//            ExtendSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            ExtendSpoolMotor.setPower(0);
         } else {
             ExtendSpoolMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if (extendSpoolDifference > 0) {
@@ -140,9 +184,10 @@ public class IntakeLiftCamera {
         }
 
         if (Math.abs(retractSpoolDifference) <= 50) {
-            RetractSpoolMotor.setTargetPosition(RetractSpoolMotor.getCurrentPosition());
-            RetractSpoolMotor.setPower(1);
-            RetractSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            RetractSpoolMotor.setTargetPosition(RetractSpoolMotor.getCurrentPosition());
+//            RetractSpoolMotor.setPower(1);
+//            RetractSpoolMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            RetractSpoolMotor.setPower(0);
         } else {
             RetractSpoolMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if (retractSpoolDifference > 0) {
@@ -204,11 +249,11 @@ public class IntakeLiftCamera {
         ExtendSpoolMotor.setDirection(DcMotor.Direction.REVERSE);
         RetractSpoolMotor.setDirection(DcMotor.Direction.REVERSE);
 
-        leftArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        ExtendSpoolMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RetractSpoolMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        leftArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        leftArmMotor.setPower(0);
+        ExtendSpoolMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RetractSpoolMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void initCameraBlueOrange(HardwareMap hwMap) {

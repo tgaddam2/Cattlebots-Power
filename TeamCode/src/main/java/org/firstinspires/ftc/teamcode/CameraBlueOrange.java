@@ -100,7 +100,7 @@ public class CameraBlueOrange
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(20,180);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(140,20);
         static final int REGION_WIDTH = 25;
         static final int REGION_HEIGHT = 15;
 
@@ -140,7 +140,7 @@ public class CameraBlueOrange
 
         // Volatile since accessed by OpMode thread w/o synchronization
         private volatile SignalPosition position = SignalPosition.RIGHT;
-        private volatile String StringPos = "RIGHT";
+        private volatile String StringPos = "CENTER";
 
         /*
          * This function takes the RGB frame, converts to YCrCb,

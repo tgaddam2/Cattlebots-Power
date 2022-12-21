@@ -47,10 +47,11 @@ public class LeftAuto extends LinearOpMode {
     CameraBlueOrange.SEDPipeline pipeline;
 
     @Override public void runOpMode() {
-        initCamera();
+        CameraBlueOrange cam = new CameraBlueOrange(hardwareMap);
 
         ILC.initIntakeLiftCamera(hardwareMap);
-        ILC.initCameraBlueOrange(hardwareMap);
+
+        cam.initCamera();
         DT.initDrivetrain(hardwareMap);
         DT.initGyro(hardwareMap);
 
@@ -59,18 +60,22 @@ public class LeftAuto extends LinearOpMode {
 
         // Loop and update the dashboard
         while (opModeIsActive()) {
-            telemetry.update();
+            String position = cam.getStringPosition().toLowerCase();
+            sleep(1000);
+            position = cam.getStringPosition().toLowerCase();
 
-            String position = ILC.getSignalPos().toLowerCase();
-            DT.drive(0.7, 24);
+            DT.drive(0.4, 24);
 
             if(position.equals("right")) {
-                DT.strafe("right", 0.7, 24);
+                DT.strafe("right", 0.2, 28);
             } else if(position.equals("left")) {
-                DT.strafe("left", 0.7, 24);
-            } else {
-                DT.turn(0.5, 180, "right");
+                DT.strafe("left", 0.2, 28);
             }
+
+            telemetry.addData("Position: %s", position);
+
+            telemetry.update();
+//            DT.turn(0.3, 180, "right");
 
             break;
         }
@@ -78,13 +83,10 @@ public class LeftAuto extends LinearOpMode {
 
     public void initCamera() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        OpenCvInternalCamera phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        OpenCvInternalCamera phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
         pipeline = new CameraBlueOrange.SEDPipeline();
         phoneCam.setPipeline(pipeline);
 
-        // We set the viewport policy to optimized view so the preview doesn't appear 90 deg
-        // out when the RC activity is in portrait. We do our actual image processing assuming
-        // landscape orientation, though. m mm
         phoneCam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
 
         phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
@@ -92,7 +94,7 @@ public class LeftAuto extends LinearOpMode {
             @Override
             public void onOpened()
             {
-                phoneCam.startStreaming(320,240, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                phoneCam.startStreaming(320,240, OpenCvCameraRotation.UPSIDE_DOWN);
             }
 
             @Override

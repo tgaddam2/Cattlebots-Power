@@ -32,9 +32,10 @@ public class TeleOpMain extends LinearOpMode
         dPadTimer.reset();
         boolean intakeButton = false;
 
-        double speedScale = 0.5;
+        double speedScale = 0.7;
 
-        int currentTargetHeight = 0;
+        int currentExtendTargetHeight = 30;
+        int currentRetractTargetHeight = -30;
 
         // Loop and update the dashboard
         while (opModeIsActive()) {
@@ -66,13 +67,29 @@ public class TeleOpMain extends LinearOpMode
             }
 
             if(gamepad2.dpad_up) {
-                currentTargetHeight += 1;
+                currentExtendTargetHeight += 1;
+                currentRetractTargetHeight += 1;
             }
             if(gamepad2.dpad_down) {
-                currentTargetHeight -= 1;
+                currentExtendTargetHeight -= 1;
+                currentRetractTargetHeight -= 1;
+            }
+            if(gamepad2.right_stick_y > 0.5) {
+                currentExtendTargetHeight += 1;
+            }
+            if(gamepad2.right_stick_y < -0.5) {
+                currentExtendTargetHeight -= 1;
+            }
+            if(gamepad2.left_stick_y > 0.5) {
+                currentRetractTargetHeight += 1;
+            }
+            if(gamepad2.left_stick_y < -0.5) {
+                currentRetractTargetHeight -= 1;
             }
 
-            ILC.updateLiftArm(currentTargetHeight);
+
+            ILC.updateExtendSpool(currentExtendTargetHeight);
+            ILC.updateRetractSpool(currentRetractTargetHeight);
 //
 //            // move arm to level one, two and three as well as all the way down
 //            if(gamepad2.a) {
