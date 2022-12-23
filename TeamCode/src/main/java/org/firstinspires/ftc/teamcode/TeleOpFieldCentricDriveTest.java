@@ -1,17 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "TeleOpDriveTest")
+@TeleOp(name = "TeleOpFieldCentricDriveTest")
 
-public class TeleOpDriveTest extends LinearOpMode
+public class TeleOpFieldCentricDriveTest extends LinearOpMode
 {
     Drivetrain drivetrain = new Drivetrain(this);
 
-
     @Override public void runOpMode() {
+
+
 
         drivetrain.initDrivetrain(hardwareMap);
         drivetrain.initGyro(hardwareMap);
