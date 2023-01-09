@@ -59,12 +59,6 @@ public class TeleOpMain extends LinearOpMode
                 clawButtonTimer.reset();
                 intakeButton = !intakeButton;
             }
-            if(intakeButton) {
-                ILC.intake();
-            }
-            else {
-                ILC.outtake();
-            }
 
             if(gamepad2.dpad_up) {
                 currentExtendTargetHeight += 1;
@@ -86,44 +80,6 @@ public class TeleOpMain extends LinearOpMode
             if(gamepad2.left_stick_y < -0.5) {
                 currentRetractTargetHeight -= 1;
             }
-
-
-            ILC.updateExtendSpool(currentExtendTargetHeight);
-            ILC.updateRetractSpool(currentRetractTargetHeight);
-//
-//            // move arm to level one, two and three as well as all the way down
-//            if(gamepad2.a) {
-//                ILC.liftToPos(ILC.groundJunctionPos);
-//            }
-//            else if(gamepad2.b) {
-//                ILC.liftToPos(ILC.lowJunctionPos);
-//            }
-//            else if(gamepad2.x) {
-//                ILC.liftToPos(ILC.mediumJunctionPos);
-//            }
-//            else if(gamepad2.y) {
-//                ILC.liftToPos(ILC.highJunctionPos);
-//            }
-//
-//            // micro adjust slide height
-//            if(gamepad2.dpad_up) {
-//                newLeftArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-//                newRightArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-//
-//                int [] newPos = {newLeftArmPos, newRightArmPos};
-//
-//                ILC.liftToPos(newPos);
-//                dPadTimer.reset();
-//            }
-//            if(gamepad2.dpad_down) {
-//                newLeftArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-//                newRightArmPos = ILC.leftArmMotor.getCurrentPosition() - 100;
-//
-//                int [] newPos = {newLeftArmPos, newRightArmPos};
-//
-//                ILC.liftToPos(newPos);
-//                dPadTimer.reset();
-//            }
         }
     }
 }

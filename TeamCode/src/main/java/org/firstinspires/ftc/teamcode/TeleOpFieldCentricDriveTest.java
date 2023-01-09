@@ -21,8 +21,7 @@ public class TeleOpFieldCentricDriveTest extends LinearOpMode
         waitForStart();
 
         drivetrain.initEncoders();
-
-
+        
         double speedScale = 0.7;
 
 

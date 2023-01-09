@@ -2,20 +2,17 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "ServoTest")
+@TeleOp(name = "Servo Testing")
 
 public class ServoTest extends LinearOpMode
 {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain drivetrain = new Drivetrain(this);
 
-    private ElapsedTime intakeButtonTimer = new ElapsedTime();
-    private ElapsedTime dPadTimer = new ElapsedTime();
-
-    int newLeftArmPos;
-    int newRightArmPos;
+    private ElapsedTime clawButtonTimer = new ElapsedTime();
 
     @Override public void runOpMode() {
 
@@ -26,24 +23,47 @@ public class ServoTest extends LinearOpMode
         // Wait until we're told to go
         waitForStart();
 
-        intakeButtonTimer.reset();
-        boolean intakeButton = false;
+        clawButtonTimer.reset();
+        boolean clawButton = false;
 
         // Loop and update the dashboard
         while (opModeIsActive()) {
-            telemetry.update();
-
             // turn intake on and off
-            if(gamepad2.right_bumper && intakeButtonTimer.milliseconds() >= 50) {
-                intakeButtonTimer.reset();
-                intakeButton = !intakeButton;
-            }
-            if(intakeButton) {
-                ILC.intake();
-            }
-            else {
-                ILC.outtake();
-            }
+//            if(gamepad2.right_bumper && clawButtonTimer.milliseconds() >= 50) {
+//                clawButtonTimer.reset();
+//                clawButton = !clawButton;
+//            }
+
+            ILC.openClaw();
+
+            clawButtonTimer.reset();
+            while(clawButtonTimer.milliseconds() < 1000){}
+
+            ILC.closeClaw();
+
+            clawButtonTimer.reset();
+            while(clawButtonTimer.milliseconds() < 1000){}
+
+//            String a = "";
+//            for(int i = 0; i < 5; i++){
+//                telemetry.addData("-1", a);
+//                telemetry.update();
+//                ILC.armRight.setPosition(-1);
+//                ILC.armLeft.setPosition(-1);
+//
+//                clawButtonTimer.reset();
+//                while(clawButtonTimer.milliseconds() < 3000){}
+//
+//                telemetry.addData("1", a);
+//                telemetry.update();
+//                ILC.armRight.setPosition(1);
+//                ILC.armLeft.setPosition(1);
+//
+//                clawButtonTimer.reset();
+//                while(clawButtonTimer.milliseconds() < 3000){}
+//            }
+//
+//            break;
         }
     }
 }

@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Telemetry")
 
@@ -31,11 +30,7 @@ public class Telemetry extends LinearOpMode
             telemetry.addData("BR: %d", drivetrain.backRightDrive.getCurrentPosition());
             telemetry.addData("BL: %d\n", drivetrain.backLeftDrive.getCurrentPosition());
 
-            telemetry.addData("Left Arm Motor: %d", ILC.leftArmMotor.getCurrentPosition());
-            telemetry.addData("Right Arm Motor: %d\n", ILC.rightArmMotor.getCurrentPosition());
-
-            telemetry.addData("Extend Spool Motor: %d", ILC.ExtendSpoolMotor.getCurrentPosition());
-            telemetry.addData("Retract Spool Motor: %d", ILC.RetractSpoolMotor.getCurrentPosition());
+            telemetry.addData("Arm Motor: %d", ILC.armMotor.getCurrentPosition());
 
         }
     }
