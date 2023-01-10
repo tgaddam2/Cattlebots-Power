@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Servo Testing")
@@ -34,15 +33,21 @@ public class ServoTest extends LinearOpMode
 //                clawButton = !clawButton;
 //            }
 
-            ILC.openClaw();
+            for(int i = 0; i < 5; i++) {
+                clawButtonTimer.reset();
+                while(clawButtonTimer.milliseconds() < 1000){}
 
-            clawButtonTimer.reset();
+                ILC.closeClaw();
+
+
+                clawButtonTimer.reset();
+                while(clawButtonTimer.milliseconds() < 1000){}
+
+                ILC.openClaw();
+            }
+
             while(clawButtonTimer.milliseconds() < 1000){}
-
-            ILC.closeClaw();
-
-            clawButtonTimer.reset();
-            while(clawButtonTimer.milliseconds() < 1000){}
+            break;
 
 //            String a = "";
 //            for(int i = 0; i < 5; i++){

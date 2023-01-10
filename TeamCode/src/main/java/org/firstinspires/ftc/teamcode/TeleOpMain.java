@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "TeleOpMain")
@@ -30,12 +31,9 @@ public class TeleOpMain extends LinearOpMode
 
         clawButtonTimer.reset();
         dPadTimer.reset();
-        boolean intakeButton = false;
+        boolean clawButton = false;
 
-        double speedScale = 0.7;
-
-        int currentExtendTargetHeight = 30;
-        int currentRetractTargetHeight = -30;
+        double speedScale = 0.4;
 
         // Loop and update the dashboard
         while (opModeIsActive()) {
@@ -57,28 +55,50 @@ public class TeleOpMain extends LinearOpMode
             // turn intake on and off
             if(gamepad2.right_bumper && clawButtonTimer.milliseconds() >= 250) {
                 clawButtonTimer.reset();
-                intakeButton = !intakeButton;
+                clawButton = !clawButton;
+            }
+            if(clawButton) {
+                ILC.closeClaw();
+            }
+            else {
+                ILC.openClaw();
+            }
+
+            if(gamepad2.b) {
+                ILC.liftMove(1);
+            }
+            else if(gamepad2.x) {
+                ILC.liftMove(2);
+            }
+            else if(gamepad2.y) {
+                ILC.liftMove(3);
+            }
+            else if(gamepad2.a) {
+                ILC.liftMove(0);
+            }
+
+            if(gamepad1.left_trigger > 0.75) {
+                speedScale = 0.7;
+
+                drivetrain.frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                drivetrain.frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                drivetrain.backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                drivetrain.backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            }
+            else {
+                speedScale = 0.4;
+
+                drivetrain.frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                drivetrain.frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                drivetrain.backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                drivetrain.backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
 
             if(gamepad2.dpad_up) {
-                currentExtendTargetHeight += 1;
-                currentRetractTargetHeight += 1;
+                ILC.dPadMove("up");
             }
-            if(gamepad2.dpad_down) {
-                currentExtendTargetHeight -= 1;
-                currentRetractTargetHeight -= 1;
-            }
-            if(gamepad2.right_stick_y > 0.5) {
-                currentExtendTargetHeight += 1;
-            }
-            if(gamepad2.right_stick_y < -0.5) {
-                currentExtendTargetHeight -= 1;
-            }
-            if(gamepad2.left_stick_y > 0.5) {
-                currentRetractTargetHeight += 1;
-            }
-            if(gamepad2.left_stick_y < -0.5) {
-                currentRetractTargetHeight -= 1;
+            else if (gamepad2.dpad_down) {
+                ILC.dPadMove("down");
             }
         }
     }

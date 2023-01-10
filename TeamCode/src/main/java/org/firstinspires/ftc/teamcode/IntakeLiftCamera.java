@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -21,14 +19,13 @@ public class IntakeLiftCamera {
 
     CameraBlueOrange camera;
 
-    static final double ArmSpeed = 0.3;
-    static final double SpoolSpeed = 1;
+    static final double ArmSpeed = 0.5;
 
     // need to measure [left, right]
-    int [] highJunctionPos = {1300, 1300, 120, 120};
-    int [] mediumJunctionPos = {2600, 2600, 120, 120};
-    int [] lowJunctionPos = {4751, 4751, 120, 120};
-    int [] groundJunctionPos = {4751, 4751, 120, 120};
+    int highJunctionPos = -4004;
+    int midJunctionPos = -2800;
+    int lowJunctionPos = -1800;
+    int groundJunctionPos = 0;
 
     LinearOpMode opMode;
 
@@ -46,17 +43,49 @@ public class IntakeLiftCamera {
     }
 
     public void closeClaw() {
-//        armLeft.setPosition(-0.5);
-        armRight.setPosition(0.5);
-        sleep(500);
-        armLeft.setPosition(-0.5);
-        sleep(500);
+        armLeft.setPosition(0.35);
+        armRight.setPosition(0.65);
     }
 
     public void openClaw() {
-        armLeft.setPosition(-0.3);
-        armRight.setPosition(0.3);
-        sleep(500);
+        armLeft.setPosition(0.45);
+        armRight.setPosition(0.55);
+    }
+
+    public void liftMove(int position) {
+        int encoderPos = 0;
+
+        if(position == 0) {
+            encoderPos = groundJunctionPos;
+        }
+        else if(position == 1) {
+            encoderPos = lowJunctionPos;
+        }
+        else if(position == 2) {
+            encoderPos = midJunctionPos;
+        }
+        else if(position == 3) {
+            encoderPos = highJunctionPos;
+        }
+
+        armMotor.setTargetPosition(encoderPos);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(ArmSpeed);
+    }
+
+    public void dPadMove(String direction) {
+        int encoderPos = armMotor.getCurrentPosition();
+
+        if(direction.equals("up")) {
+            encoderPos += 10;
+        }
+        if(direction.equals("down")) {
+            encoderPos -= 10;
+        }
+
+        armMotor.setTargetPosition(encoderPos);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(ArmSpeed);
     }
 
     public void initIntakeLiftCamera(HardwareMap hwMap) {
@@ -67,8 +96,8 @@ public class IntakeLiftCamera {
         armLeft = hwMap.get(Servo.class, "LeftClaw");
         armRight = hwMap.get(Servo.class, "RightClaw");
 
-        armRight.setPosition(0);
-        armLeft.setPosition(0);
+        armLeft.setPosition(0.45);
+        armRight.setPosition(0.55);
 
         armMotor.setDirection(DcMotor.Direction.FORWARD);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

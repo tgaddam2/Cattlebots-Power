@@ -64,7 +64,15 @@ public class LeftAuto extends LinearOpMode {
             sleep(1000);
             position = cam.getStringPosition().toLowerCase();
 
-            DT.drive(0.4, 24);
+            ILC.closeClaw();
+
+            DT.drive(0.4, 52);
+            ILC.liftMove(3);
+            DT.strafe("left", 0.4, 5);
+
+            sleep(500);
+
+            ILC.closeClaw();
 
             if(position.equals("right")) {
                 DT.strafe("right", 0.2, 28);
@@ -75,7 +83,6 @@ public class LeftAuto extends LinearOpMode {
             telemetry.addData("Position: %s", position);
 
             telemetry.update();
-//            DT.turn(0.3, 180, "right");
 
             break;
         }
