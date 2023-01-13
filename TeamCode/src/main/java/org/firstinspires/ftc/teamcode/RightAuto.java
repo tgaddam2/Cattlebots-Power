@@ -39,9 +39,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 
-@Autonomous(name = "rightAuto")
+@Autonomous(name = "leftAuto")
 
-public class RightAuto extends LinearOpMode {
+public class LeftAuto extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain DT = new Drivetrain(this);
 
