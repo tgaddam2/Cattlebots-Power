@@ -39,73 +39,28 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 
-@Autonomous(name = "leftAuto")
+@Autonomous(name = "Camera Test")
 
-public class LeftAuto extends LinearOpMode {
-    IntakeLiftCamera ILC = new IntakeLiftCamera(this);
-    Drivetrain DT = new Drivetrain(this);
-
+public class CameraTest extends LinearOpMode {
     CameraBlueOrange.SEDPipeline pipeline;
 
     @Override public void runOpMode() {
         CameraBlueOrange cam = new CameraBlueOrange(hardwareMap);
 
-        ILC.initIntakeLiftCamera(hardwareMap);
-
         cam.initCamera();
-        DT.initDrivetrain(hardwareMap);
-        DT.initGyro(hardwareMap);
+
+        String position;
 
         // Wait until we're told to go
         waitForStart();
 
         // Loop and update the dashboard
         while (opModeIsActive()) {
-            String position = cam.getStringPosition().toLowerCase();
-            wait(1000);
             position = cam.getStringPosition().toLowerCase();
 
-            ILC.closeClaw();
-
-            DT.drive(0.3, 48);
-            ILC.liftMove(3);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
-            DT.strafe("left", 0.4, 10);
-            DT.drive(0.2, 5);
-
-            wait(500);
-
-            ILC.openClaw();
-
-            DT.drive(0.2, -5);
-            DT.strafe("right", 0.4, 10);
-
-            DT.turn(0.2, 90, "right");
-            ILC.coneMove(5);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
-            DT.drive(0.3, 30);
-
-            wait(500);
-
-            ILC.closeClaw();
-
-            if(position.equals("right")) {
-                DT.strafe("right", 0.2, 28);
-            } else if(position.equals("left")) {
-                DT.strafe("left", 0.2, 28);
-            }
-
-            telemetry.addData("Position: %s", position);
+            telemetry.addData("Position: ", position);
 
             telemetry.update();
-
-            break;
         }
     }
 

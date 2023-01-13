@@ -10,9 +10,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-@TeleOp(name = "TeleOpMain")
+@TeleOp(name = "TeleOpFC")
 
-public class TeleOpMain extends LinearOpMode
+public class TeleOpFCDriveTest extends LinearOpMode
 {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain drivetrain = new Drivetrain(this);
@@ -61,12 +61,12 @@ public class TeleOpMain extends LinearOpMode
             // Control Robot Movement
             angles = imu.getRobotYawPitchRollAngles();
             double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-            double robotAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+            double driveAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4 - angles.getYaw(AngleUnit.RADIANS);
             double rightX = gamepad1.right_stick_x;
-            final double FLPower = speedScale * (r * Math.cos(robotAngle) + rightX);
-            final double BLPower = speedScale * (r * Math.sin(robotAngle) + rightX);
-            final double FRPower = speedScale * (r * Math.sin(robotAngle) - rightX);
-            final double BRPower = speedScale * (r * Math.cos(robotAngle) - rightX);
+            final double FLPower = speedScale * (r * Math.cos(driveAngle) + rightX);
+            final double BLPower = speedScale * (r * Math.sin(driveAngle) + rightX);
+            final double FRPower = speedScale * (r * Math.sin(driveAngle) - rightX);
+            final double BRPower = speedScale * (r * Math.cos(driveAngle) - rightX);
 
             drivetrain.frontLeftDrive.setPower(FLPower);
             drivetrain.backLeftDrive.setPower(BLPower);

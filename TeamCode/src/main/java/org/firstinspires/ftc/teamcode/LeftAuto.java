@@ -39,9 +39,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 
-@Autonomous(name = "rightAuto")
+@Autonomous(name = "leftAuto")
 
-public class RightAuto extends LinearOpMode {
+public class LeftAuto extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain DT = new Drivetrain(this);
 
@@ -76,7 +76,7 @@ public class RightAuto extends LinearOpMode {
             }
             DT.turn(0.2, 0, "left");
 
-            DT.strafe("left", 0.4, 12);
+            DT.strafe("right", 0.4, 12);
             DT.drive(0.2, 5);
 
             wait(500);
@@ -84,52 +84,7 @@ public class RightAuto extends LinearOpMode {
             ILC.openClaw();
 
             DT.drive(0.2, -5);
-            DT.strafe("right", 0.4, 11);
-
-            // get cone from stack
-//            DT.turn(0.2, 90, "right");
-//            ILC.coneMove(5);
-//            while(ILC.armMotor.isBusy()) {
-//                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-//                telemetry.update();
-//            }
-//            DT.drive(0.2, 28);
-//
-//            wait(500);
-//
-//            ILC.closeClaw();
-//            wait(500);
-//
-//            // go back to junction
-//            ILC.liftMove(1);
-//            while(ILC.armMotor.isBusy()) {
-//                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-//                telemetry.update();
-//            }
-//
-//            DT.drive(0.2, -28);
-//
-//            DT.turn(0.2, 90, "left");
-//            ILC.liftMove(3);
-//            while(ILC.armMotor.isBusy()) {
-//                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-//                telemetry.update();
-//            }
-//            ILC.encoderMove(ILC.armMotor.getCurrentPosition() - 300);
-//            while(ILC.armMotor.isBusy()) {
-//                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-//                telemetry.update();
-//            }
-//
-//            DT.strafe("left", 0.4, 2);
-//            DT.drive(0.2, 6);
-//
-//            wait(500);
-//
-//            ILC.openClaw();
-
-//            DT.drive(0.2, -5);
-//            DT.strafe("right", 0.4, 10);
+            DT.strafe("left", 0.4, 11);
 
             // park
             ILC.liftMove(0);

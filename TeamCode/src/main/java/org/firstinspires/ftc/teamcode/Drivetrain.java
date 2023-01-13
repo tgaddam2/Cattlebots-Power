@@ -112,12 +112,12 @@ public class Drivetrain {
             newFrontRightTarget = frontRightDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
             newBackRightTarget = backRightDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
 
-            if (direction.equals("left")) {
+            if (direction.equals("right")) {
                 newFrontLeftTarget *= Reverse;
                 newBackLeftTarget *= Forward;
                 newFrontRightTarget *= Forward;
                 newBackRightTarget *= Reverse;
-            } else if (direction.equals("right")) {
+            } else if (direction.equals("left")) {
                 newFrontLeftTarget *= Forward;
                 newBackLeftTarget *= Reverse;
                 newFrontRightTarget *= Reverse;
@@ -162,6 +162,7 @@ public class Drivetrain {
     }
 
     void turn(double power, double angle, String direction) {
+        angles = imu.getRobotYawPitchRollAngles();
 
         frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -182,6 +183,7 @@ public class Drivetrain {
         while (opMode.opModeIsActive() && Math.abs(angles.getYaw(AngleUnit.DEGREES)) < angle) {
             opMode.telemetry.addData("heading", angles.getYaw(AngleUnit.DEGREES));
             opMode.telemetry.update();
+            angles = imu.getRobotYawPitchRollAngles();
         }
 
         frontLeftDrive.setPower(0);
@@ -223,7 +225,7 @@ public class Drivetrain {
     public void initGyro(HardwareMap hwMap) {
         parameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                        RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
                         RevHubOrientationOnRobot.UsbFacingDirection.UP
                 )
         );

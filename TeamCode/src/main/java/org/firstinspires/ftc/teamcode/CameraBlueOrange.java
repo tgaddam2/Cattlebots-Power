@@ -94,13 +94,13 @@ public class CameraBlueOrange
          */
         static final Scalar BLUE = new Scalar(0, 0, 255);
         static final Scalar GREEN = new Scalar(0, 255, 0);
-        static final Scalar YELLOW = new Scalar(255, 255, 0);
-        static final Scalar RED = new Scalar(255, 0, 0);
+        static final Scalar BLACK = new Scalar(0, 0, 0);
+        static final Scalar ORANGE = new Scalar(255, 69, 0);
 
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(140,20);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(145,40);
         static final int REGION_WIDTH = 25;
         static final int REGION_HEIGHT = 15;
 
@@ -238,7 +238,7 @@ public class CameraBlueOrange
                     input, // Buffer to draw on
                     region1_pointA, // First point which defines the rectangle
                     region1_pointB, // Second point which defines the rectangle
-                    RED, // The color the rectangle is drawn in
+                    GREEN, // The color the rectangle is drawn in
                     2); // Thickness of the rectangle lines
 
             /*
@@ -247,7 +247,7 @@ public class CameraBlueOrange
              */
             if(avgCb - avgCr > 20) {
                 position = SignalPosition.LEFT; // Record our analysis
-                StringPos = "LEFT";
+                StringPos = "RIGHT";
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -262,7 +262,7 @@ public class CameraBlueOrange
             }
             else if(avgCr - avgCb > 20) {
                 position = SignalPosition.RIGHT; // Record our analysis
-                StringPos = "RIGHT";
+                StringPos = "LEFT";
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -272,7 +272,7 @@ public class CameraBlueOrange
                         input, // Buffer to draw on
                         region1_pointA, // First point which defines the rectangle
                         region1_pointB, // Second point which defines the rectangle
-                        GREEN, // The color the rectangle is drawn in
+                        ORANGE, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
             else{
@@ -287,7 +287,7 @@ public class CameraBlueOrange
                         input, // Buffer to draw on
                         region1_pointA, // First point which defines the rectangle
                         region1_pointB, // Second point which defines the rectangle
-                        YELLOW, // The color the rectangle is drawn in
+                        BLACK, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
 

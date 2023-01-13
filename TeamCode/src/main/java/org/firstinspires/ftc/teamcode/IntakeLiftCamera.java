@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 public class IntakeLiftCamera {
-    public DcMotorEx armMotor;
+    public DcMotor armMotor;
 
     public Servo armLeft;
     public Servo armRight;
@@ -19,13 +19,19 @@ public class IntakeLiftCamera {
 
     CameraBlueOrange camera;
 
-    static final double ArmSpeed = 0.5;
+    double ArmSpeed = 0.5;
 
     // need to measure [left, right]
     int highJunctionPos = -4004;
     int midJunctionPos = -2800;
     int lowJunctionPos = -1800;
     int groundJunctionPos = 0;
+
+    int cone5Pos = -760;
+    int cone4Pos = -540;
+    int cone3Pos = -415;
+    int cone2Pos = -220;
+    int cone1Pos = 0;
 
     LinearOpMode opMode;
 
@@ -73,14 +79,38 @@ public class IntakeLiftCamera {
         armMotor.setPower(ArmSpeed);
     }
 
+    public void coneMove(int position) {
+        int encoderPos = 0;
+
+        if(position == 1) {
+            encoderPos = cone1Pos;
+        }
+        else if(position == 2) {
+            encoderPos = cone2Pos;
+        }
+        else if(position == 3) {
+            encoderPos = cone3Pos;
+        }
+        else if(position == 4) {
+            encoderPos = cone4Pos;
+        }
+        else if(position == 5) {
+            encoderPos = cone5Pos;
+        }
+
+        armMotor.setTargetPosition(encoderPos);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(ArmSpeed);
+    }
+
     public void dPadMove(String direction) {
         int encoderPos = armMotor.getCurrentPosition();
 
         if(direction.equals("up")) {
-            encoderPos += 10;
+            encoderPos -= 100;
         }
         if(direction.equals("down")) {
-            encoderPos -= 10;
+            encoderPos += 100;
         }
 
         armMotor.setTargetPosition(encoderPos);
@@ -92,7 +122,7 @@ public class IntakeLiftCamera {
         sleepTimer = new ElapsedTime();
 
         // Define and Initialize Motors
-        armMotor = hwMap.get(DcMotorEx.class, "ArmMotor");
+        armMotor = hwMap.get(DcMotor.class, "ArmMotor");
         armLeft = hwMap.get(Servo.class, "LeftClaw");
         armRight = hwMap.get(Servo.class, "RightClaw");
 
@@ -103,6 +133,12 @@ public class IntakeLiftCamera {
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armMotor.setPower(0);
+    }
+
+    public void encoderMove(int encoderPos) {
+        armMotor.setTargetPosition(encoderPos);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(ArmSpeed);
     }
 
     public void initCameraBlueOrange(HardwareMap hwMap) {

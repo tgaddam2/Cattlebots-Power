@@ -1,9 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 @TeleOp(name = "TeleOpMain")
 
@@ -14,6 +19,7 @@ public class TeleOpMain extends LinearOpMode
 
     private ElapsedTime clawButtonTimer = new ElapsedTime();
     private ElapsedTime dPadTimer = new ElapsedTime();
+    private ElapsedTime headingFixTimer = new ElapsedTime();
 
     int newLeftArmPos;
     int newRightArmPos;
@@ -99,6 +105,18 @@ public class TeleOpMain extends LinearOpMode
             }
             else if (gamepad2.dpad_down) {
                 ILC.dPadMove("down");
+            }
+
+            if(gamepad1.y && headingFixTimer.milliseconds() >= 500) {
+                clawButtonTimer.reset();
+                drivetrain.imu.resetYaw();
+            }
+
+            if(gamepad2.left_trigger > 0.75) {
+                ILC.ArmSpeed = 0.8;
+            }
+            else {
+                ILC.ArmSpeed = 0.5;
             }
         }
     }
