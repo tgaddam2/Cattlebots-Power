@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -46,7 +47,6 @@ public class CameraTest extends LinearOpMode {
 
     @Override public void runOpMode() {
         CameraBlueOrange cam = new CameraBlueOrange(hardwareMap);
-
         cam.initCamera();
 
         String position;
@@ -56,6 +56,8 @@ public class CameraTest extends LinearOpMode {
 
         // Loop and update the dashboard
         while (opModeIsActive()) {
+
+
             position = cam.getStringPosition().toLowerCase();
 
             telemetry.addData("Position: ", position);

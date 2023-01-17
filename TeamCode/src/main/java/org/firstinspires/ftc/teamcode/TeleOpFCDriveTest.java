@@ -19,6 +19,7 @@ public class TeleOpFCDriveTest extends LinearOpMode
 
     private ElapsedTime clawButtonTimer = new ElapsedTime();
     private ElapsedTime dPadTimer = new ElapsedTime();
+    private ElapsedTime headingFixTimer = new ElapsedTime();
 
     int newLeftArmPos;
     int newRightArmPos;
@@ -120,6 +121,18 @@ public class TeleOpFCDriveTest extends LinearOpMode
             }
             else if (gamepad2.dpad_down) {
                 ILC.dPadMove("down");
+            }
+
+            if(gamepad1.y && headingFixTimer.milliseconds() >= 500) {
+                headingFixTimer.reset();
+                drivetrain.imu.resetYaw();
+            }
+
+            if(gamepad2.left_trigger > 0.75) {
+                ILC.ArmSpeed = 0.8;
+            }
+            else {
+                ILC.ArmSpeed = 0.5;
             }
         }
     }

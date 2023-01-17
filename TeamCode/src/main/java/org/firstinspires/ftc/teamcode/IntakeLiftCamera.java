@@ -21,9 +21,8 @@ public class IntakeLiftCamera {
 
     double ArmSpeed = 0.5;
 
-    // need to measure [left, right]
-    int highJunctionPos = -4004;
-    int midJunctionPos = -2800;
+    int highJunctionPos = -4200;
+    int midJunctionPos = -3000;
     int lowJunctionPos = -1800;
     int groundJunctionPos = 0;
 

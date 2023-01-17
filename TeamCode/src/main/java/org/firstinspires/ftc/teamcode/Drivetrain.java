@@ -195,6 +195,40 @@ public class Drivetrain {
         imu.resetYaw();
     }
 
+    void turnToZero(double power, String direction) {
+        angles = imu.getRobotYawPitchRollAngles();
+
+        frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        imu.resetYaw();
+
+        if (direction.equals("left")) {
+            power *= -1;
+        }
+
+        frontLeftDrive.setPower(power);
+        backLeftDrive.setPower(power);
+        frontRightDrive.setPower(-power);
+        backRightDrive.setPower(-power);
+
+        while (opMode.opModeIsActive() && Math.abs(angles.getYaw(AngleUnit.DEGREES))  < 2) {
+            opMode.telemetry.addData("heading", angles.getYaw(AngleUnit.DEGREES));
+            opMode.telemetry.update();
+            angles = imu.getRobotYawPitchRollAngles();
+        }
+
+        frontLeftDrive.setPower(0);
+        backLeftDrive.setPower(0);
+        frontRightDrive.setPower(0);
+        backRightDrive.setPower(0);
+
+        initEncoders();
+        imu.resetYaw();
+    }
+
     public void initDrivetrain(HardwareMap hwMap) {
         frontLeftDrive = hwMap.get(DcMotor.class, "FL");
         backLeftDrive = hwMap.get(DcMotor.class, "BL");

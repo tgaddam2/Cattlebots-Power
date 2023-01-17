@@ -139,12 +139,12 @@ public class RightAuto extends LinearOpMode {
             }
 
             if(position.equals("right")) {
-                DT.strafe("right", 0.2, 27);
+                DT.strafe("right", 0.2, 29);
             } else if(position.equals("left")) {
                 DT.strafe("left", 0.2, 23);
             }
 
-            DT.drive(0.2, -10);
+            DT.drive(0.2, -12);
 
             ILC.liftMove(0);
             while(ILC.armMotor.isBusy()) {
