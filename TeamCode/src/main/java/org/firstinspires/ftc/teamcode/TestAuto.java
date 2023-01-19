@@ -33,6 +33,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.CameraBlueOrange;
+import org.firstinspires.ftc.teamcode.Drivetrain;
+import org.firstinspires.ftc.teamcode.IntakeLiftCamera;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -49,10 +52,12 @@ public class TestAuto extends LinearOpMode {
 
     @Override public void runOpMode() {
         CameraBlueOrange cam = new CameraBlueOrange(hardwareMap);
+        cam.initCamera();
+
+        TripleCamera tripleCam = new TripleCamera(hardwareMap);
+        tripleCam.initCamera();
 
         ILC.initIntakeLiftCamera(hardwareMap);
-
-        cam.initCamera();
         DT.initDrivetrain(hardwareMap);
         DT.initGyro(hardwareMap);
 
@@ -77,11 +82,13 @@ public class TestAuto extends LinearOpMode {
 //            DT.turn(0.2, 0, "left");
             DT.turnToZero(0.2, "right");
 
-//            DT.strafe("left", 0.4, 12);
             DT.startStrafe("left", 0.4);
             while(cam.pipeline.getAlignedAnalysis().equals("NO")) {}
             DT.motorsStop();
-            DT.drive(0.2, 5);
+
+            DT.startDrive(0.2, "forward");
+            while(tripleCam.frontPipeline.getAlignedAnalysis().equals("NO")) {}
+            DT.motorsStop();
 
             wait(500);
 

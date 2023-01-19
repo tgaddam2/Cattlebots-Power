@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-import java.util.Locale;
-
 public class Drivetrain {
     public DcMotor frontLeftDrive  = null;
     public DcMotor backLeftDrive   = null;
@@ -96,6 +94,31 @@ public class Drivetrain {
         }
     }
 
+    public void startDrive(double speed, String direction) {
+        double frontLeftSpeed = Math.abs(speed);
+        double backLeftSpeed = Math.abs(speed);
+        double frontRightSpeed = Math.abs(speed);
+        double backRightSpeed = Math.abs(speed);
+
+        direction = direction.toLowerCase();
+
+        // Ensure that the opmode is still active
+        if (opMode.opModeIsActive()) {
+
+            if (direction.equals("back")) {
+                frontLeftSpeed *= Reverse;
+                backLeftSpeed *= Reverse;
+                frontRightSpeed *= Reverse;
+                backRightSpeed *= Reverse;
+            }
+
+            frontLeftDrive.setPower(frontLeftSpeed);
+            backLeftDrive.setPower(backLeftSpeed);
+            frontRightDrive.setPower(frontRightSpeed);
+            backRightDrive.setPower(backRightSpeed);
+        }
+    }
+
     public void strafe(String direction, double speed, double distance) {
         int newFrontLeftTarget;
         int newBackLeftTarget;
@@ -161,6 +184,36 @@ public class Drivetrain {
         }
     }
 
+    public void startStrafe(String direction, double speed) {
+        double frontLeftSpeed = Math.abs(speed);
+        double backLeftSpeed = Math.abs(speed);
+        double frontRightSpeed = Math.abs(speed);
+        double backRightSpeed = Math.abs(speed);
+
+        direction = direction.toLowerCase();
+
+        // Ensure that the opmode is still active
+        if (opMode.opModeIsActive()) {
+
+            if (direction.equals("right")) {
+                frontLeftSpeed *= Reverse;
+                backLeftSpeed *= Forward;
+                frontRightSpeed *= Forward;
+                backRightSpeed *= Reverse;
+            } else if (direction.equals("left")) {
+                frontLeftSpeed *= Forward;
+                backLeftSpeed *= Reverse;
+                frontRightSpeed *= Reverse;
+                backRightSpeed *= Forward;
+            }
+
+            frontLeftDrive.setPower(frontLeftSpeed);
+            backLeftDrive.setPower(backLeftSpeed);
+            frontRightDrive.setPower(frontRightSpeed);
+            backRightDrive.setPower(backRightSpeed);
+        }
+    }
+
     void turn(double power, double angle, String direction) {
         angles = imu.getRobotYawPitchRollAngles();
 
@@ -214,7 +267,7 @@ public class Drivetrain {
         frontRightDrive.setPower(-power);
         backRightDrive.setPower(-power);
 
-        while (opMode.opModeIsActive() && Math.abs(angles.getYaw(AngleUnit.DEGREES))  < 2) {
+        while (opMode.opModeIsActive() && Math.abs(angles.getYaw(AngleUnit.DEGREES))  < 3) {
             opMode.telemetry.addData("heading", angles.getYaw(AngleUnit.DEGREES));
             opMode.telemetry.update();
             angles = imu.getRobotYawPitchRollAngles();
@@ -227,6 +280,13 @@ public class Drivetrain {
 
         initEncoders();
         imu.resetYaw();
+    }
+
+    public void motorsStop() {
+        frontLeftDrive.setPower(0);
+        backLeftDrive.setPower(0);
+        frontRightDrive.setPower(0);
+        backRightDrive.setPower(0);
     }
 
     public void initDrivetrain(HardwareMap hwMap) {

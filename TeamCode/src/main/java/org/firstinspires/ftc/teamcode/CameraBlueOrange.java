@@ -80,29 +80,37 @@ public class CameraBlueOrange
 
     public static class SEDPipeline extends OpenCvPipeline {
         /*
-         * An enum to define the skystone position
+         * An enum to define the parking position
          */
-        public enum SignalPosition
-        {
+        public enum SignalPosition {
             LEFT,
             CENTER,
             RIGHT
         }
+        public enum AutoAligned {
+            YES,
+            NO
+        }
 
-        /*
-         * Some color constants
-         */
+        // box fills
         static final Scalar BLUE = new Scalar(0, 0, 255);
-        static final Scalar GREEN = new Scalar(0, 255, 0);
         static final Scalar BLACK = new Scalar(0, 0, 0);
         static final Scalar ORANGE = new Scalar(255, 69, 0);
+        static final Scalar YELLOW = new Scalar(255, 255, 0);
+
+        // box outlines
+        static final Scalar GREEN = new Scalar(0, 255, 0);
 
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(145,40);
-        static final int REGION_WIDTH = 25;
-        static final int REGION_HEIGHT = 15;
+        static final Point SLEEVE_TOPLEFT_ANCHOR_POINT = new Point(145,40);
+        static final int SLEEVE_REGION_WIDTH = 25;
+        static final int SLEEVE_REGION_HEIGHT = 15;
+
+        static final Point AUTO_ALIGN_TOPLEFT_ANCHOR_POINT = new Point(0,40);
+        static final int AUTO_ALIGN_REGION_WIDTH = 145;
+        static final int AUTO_ALIGN_REGION_HEIGHT = 15;
 
         /*
          * Points which actually define the sample region rectangles, derived from above values
@@ -121,26 +129,38 @@ public class CameraBlueOrange
          *   ------------------------------------
          *
          */
-        Point region1_pointA = new Point(
-                REGION1_TOPLEFT_ANCHOR_POINT.x,
-                REGION1_TOPLEFT_ANCHOR_POINT.y);
-        Point region1_pointB = new Point(
-                REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-                REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
+        Point sleeve_pointA = new Point(
+                SLEEVE_TOPLEFT_ANCHOR_POINT.x,
+                SLEEVE_TOPLEFT_ANCHOR_POINT.y);
+        Point sleeve_pointB = new Point(
+                SLEEVE_TOPLEFT_ANCHOR_POINT.x + SLEEVE_REGION_WIDTH,
+                SLEEVE_TOPLEFT_ANCHOR_POINT.y + SLEEVE_REGION_HEIGHT);
+
+        Point auto_align_pointA = new Point(
+                AUTO_ALIGN_TOPLEFT_ANCHOR_POINT.x,
+                AUTO_ALIGN_TOPLEFT_ANCHOR_POINT.y);
+        Point auto_align_pointB = new Point(
+                AUTO_ALIGN_TOPLEFT_ANCHOR_POINT.x + AUTO_ALIGN_REGION_WIDTH,
+                AUTO_ALIGN_TOPLEFT_ANCHOR_POINT.y + AUTO_ALIGN_REGION_HEIGHT);
 
         /*
          * Working variables
          */
-        Mat region1_Y, region1_Cr, region1_Cb;
+        Mat sleeve_Y, sleeve_Cr, sleeve_Cb;
+        Mat auto_align_Y, auto_align_Cr, auto_align_Cb;
         Mat YCrCb = new Mat();
         Mat YImage = new Mat();
         Mat CrImage = new Mat();
         Mat CbImage = new Mat();
-        int avgY, avgCr, avgCb;
+        int sleeve_avgY, sleeve_avgCr, sleeve_avgCb;
+        int auto_align_avgY, auto_align_avgCr, auto_align_avgCb;
 
         // Volatile since accessed by OpMode thread w/o synchronization
         private volatile SignalPosition position = SignalPosition.RIGHT;
         private volatile String StringPos = "CENTER";
+
+        private volatile AutoAligned aligned = AutoAligned.NO;
+        private volatile String StringAligned = "NO";
 
         /*
          * This function takes the RGB frame, converts to YCrCb,
@@ -171,14 +191,17 @@ public class CameraBlueOrange
              * buffer. Any changes to the child affect the parent, and the
              * reverse also holds true.
              */
-            region1_Y = YImage.submat(new Rect(region1_pointA, region1_pointB));
-            region1_Cr = CrImage.submat(new Rect(region1_pointA, region1_pointB));
-            region1_Cb = CbImage.submat(new Rect(region1_pointA, region1_pointB));
+            sleeve_Y = YImage.submat(new Rect(sleeve_pointA, sleeve_pointB));
+            sleeve_Cr = CrImage.submat(new Rect(sleeve_pointA, sleeve_pointB));
+            sleeve_Cb = CbImage.submat(new Rect(sleeve_pointA, sleeve_pointB));
+
+            auto_align_Y = YImage.submat(new Rect(auto_align_pointA, auto_align_pointB));
+            auto_align_Cr = CrImage.submat(new Rect(auto_align_pointA, auto_align_pointB));
+            auto_align_Cb = CbImage.submat(new Rect(auto_align_pointA, auto_align_pointB));
         }
 
         @Override
-        public Mat processFrame(Mat input)
-        {
+        public Mat processFrame(Mat input) {
             /*
              * Overview of what we're doing:
              *
@@ -226,18 +249,33 @@ public class CameraBlueOrange
              * pixel value of the 3-channel image, and referenced the value
              * at index 2 here.
              */
-            avgY = (int) Core.mean(region1_Y).val[0];
-            avgCr = (int) Core.mean(region1_Cr).val[0];
-            avgCb = (int) Core.mean(region1_Cb).val[0];
+            sleeve_avgY = (int) Core.mean(sleeve_Y).val[0];
+            sleeve_avgCr = (int) Core.mean(sleeve_Cr).val[0];
+            sleeve_avgCb = (int) Core.mean(sleeve_Cb).val[0];
+
+            auto_align_avgY = (int) Core.mean(sleeve_Y).val[0];
+            auto_align_avgCr = (int) Core.mean(sleeve_Cr).val[0];
+            auto_align_avgCb = (int) Core.mean(sleeve_Cb).val[0];
 
             /*
-             * Draw a rectangle showing sample region 1 on the screen.
+             * Draw a rectangle showing sample sleeve box on the screen.
              * Simply a visual aid. Serves no functional purpose.
              */
             Imgproc.rectangle(
                     input, // Buffer to draw on
-                    region1_pointA, // First point which defines the rectangle
-                    region1_pointB, // Second point which defines the rectangle
+                    sleeve_pointA, // First point which defines the rectangle
+                    sleeve_pointB, // Second point which defines the rectangle
+                    GREEN, // The color the rectangle is drawn in
+                    2); // Thickness of the rectangle lines
+
+            /*
+             * Draw a rectangle showing sample sleeve box on the screen.
+             * Simply a visual aid. Serves no functional purpose.
+             */
+            Imgproc.rectangle(
+                    input, // Buffer to draw on
+                    auto_align_pointA, // First point which defines the rectangle
+                    auto_align_pointB, // Second point which defines the rectangle
                     GREEN, // The color the rectangle is drawn in
                     2); // Thickness of the rectangle lines
 
@@ -245,7 +283,7 @@ public class CameraBlueOrange
              * Now that we found the min, we actually need to go and
              * figure out which sample region that value was from
              */
-            if(avgCb - avgCr > 20) {
+            if(sleeve_avgCb - sleeve_avgCr > 20) {
                 position = SignalPosition.LEFT; // Record our analysis
                 StringPos = "RIGHT";
 
@@ -255,12 +293,12 @@ public class CameraBlueOrange
                  */
                 Imgproc.rectangle(
                         input, // Buffer to draw on
-                        region1_pointA, // First point which defines the rectangle
-                        region1_pointB, // Second point which defines the rectangle
+                        sleeve_pointA, // First point which defines the rectangle
+                        sleeve_pointB, // Second point which defines the rectangle
                         BLUE, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
-            else if(avgCr - avgCb > 20) {
+            else if(sleeve_avgCr - sleeve_avgCb > 20) {
                 position = SignalPosition.RIGHT; // Record our analysis
                 StringPos = "LEFT";
 
@@ -270,8 +308,8 @@ public class CameraBlueOrange
                  */
                 Imgproc.rectangle(
                         input, // Buffer to draw on
-                        region1_pointA, // First point which defines the rectangle
-                        region1_pointB, // Second point which defines the rectangle
+                        sleeve_pointA, // First point which defines the rectangle
+                        sleeve_pointB, // Second point which defines the rectangle
                         ORANGE, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
@@ -285,9 +323,25 @@ public class CameraBlueOrange
                  */
                 Imgproc.rectangle(
                         input, // Buffer to draw on
-                        region1_pointA, // First point which defines the rectangle
-                        region1_pointB, // Second point which defines the rectangle
+                        sleeve_pointA, // First point which defines the rectangle
+                        sleeve_pointB, // Second point which defines the rectangle
                         BLACK, // The color the rectangle is drawn in
+                        -1); // Negative thickness means solid fill
+            }
+
+            if(sleeve_avgCb > 95 && sleeve_avgCb < 110) {
+                aligned = AutoAligned.YES; // Record our analysis
+                StringAligned = "YES";
+
+                /*
+                 * Draw a solid rectangle on top of the chosen region.
+                 * Simply a visual aid. Serves no functional purpose.
+                 */
+                Imgproc.rectangle(
+                        input, // Buffer to draw on
+                        auto_align_pointA, // First point which defines the rectangle
+                        auto_align_pointB, // Second point which defines the rectangle
+                        YELLOW, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
 
@@ -312,8 +366,23 @@ public class CameraBlueOrange
             return StringPos;
         }
 
-        public int getAvgY() { return avgY; }
-        public int getAvgCr() { return avgCr; }
-        public int getAvgCb() { return avgCb; }
+        public String getAlignedAnalysis()
+        {
+            return StringAligned;
+        }
+
+        public int getSleeve_avgY() { return sleeve_avgY; }
+        public int getSleeve_avgCr() { return sleeve_avgCr; }
+        public int getSleeve_avgCb() { return sleeve_avgCb; }
+
+        public int getAuto_align_avgY() {
+            return auto_align_avgY;
+        }
+        public int getAuto_align_avgCr() {
+            return auto_align_avgCr;
+        }
+        public int getAuto_align_avgCb() {
+            return auto_align_avgCb;
+        }
     }
 }

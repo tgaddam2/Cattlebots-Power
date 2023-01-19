@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -51,18 +52,23 @@ public class CameraTest extends LinearOpMode {
 
         String position;
 
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        TelemetryPacket packet = new TelemetryPacket();
+
         // Wait until we're told to go
         waitForStart();
 
         // Loop and update the dashboard
         while (opModeIsActive()) {
-
-
             position = cam.getStringPosition().toLowerCase();
+            int avgCb = cam.pipeline.getAuto_align_avgCb();
 
-            telemetry.addData("Position: ", position);
+            packet.put("Position", position);
+            packet.put("Avg CB", avgCb);
+            dashboard.sendTelemetryPacket(packet);
 
-            telemetry.update();
+//            telemetry.addData("Position: ", position);
+//            telemetry.update();
         }
     }
 

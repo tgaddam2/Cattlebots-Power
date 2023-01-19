@@ -1,0 +1,3 @@
+DT.startStrafe("left", 0.4);
+while(cam.pipeline.getAlignedAnalysis().equals("NO")) {}
+DT.motorsStop();
