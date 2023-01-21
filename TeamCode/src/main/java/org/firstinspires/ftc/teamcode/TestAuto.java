@@ -50,12 +50,14 @@ public class TestAuto extends LinearOpMode {
 
     CameraBlueOrange.SEDPipeline pipeline;
 
+    private ElapsedTime runtime = new ElapsedTime();
+
     @Override public void runOpMode() {
         CameraBlueOrange cam = new CameraBlueOrange(hardwareMap);
         cam.initCamera();
 
-        TripleCamera tripleCam = new TripleCamera(hardwareMap);
-        tripleCam.initCamera();
+//        TripleCamera tripleCam = new TripleCamera(hardwareMap);
+//        tripleCam.initCamera();
 
         ILC.initIntakeLiftCamera(hardwareMap);
         DT.initDrivetrain(hardwareMap);
@@ -73,41 +75,56 @@ public class TestAuto extends LinearOpMode {
             //score starting cone
             ILC.closeClaw();
 
-            DT.drive(0.3, 48);
+            DT.drive(0.2, 48);
             ILC.liftMove(3);
-            while(ILC.armMotor.isBusy()) {
+            runtime.reset();
+            while(ILC.armMotor.isBusy() && runtime.milliseconds() < 6000) {
                 telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
+                telemetry.addData("Aligned: ", cam.pipeline.getAlignedAnalysis().equals("NO"));
                 telemetry.update();
             }
 //            DT.turn(0.2, 0, "left");
-            DT.turnToZero(0.2, "right");
+            DT.turnToZero(0.3);
 
-            DT.startStrafe("left", 0.4);
-            while(cam.pipeline.getAlignedAnalysis().equals("NO")) {}
-            DT.motorsStop();
+            cam.initCamera();
 
-            DT.startDrive(0.2, "forward");
-            while(tripleCam.frontPipeline.getAlignedAnalysis().equals("NO")) {}
+            DT.strafe2("left", 0.1, 25);
+            while(cam.pipeline.getAlignedAnalysis().equals("NO")) {
+                telemetry.addData("Aligned: ", cam.pipeline.getAlignedAnalysis().equals("NO"));
+                telemetry.addData("Avg Cb: ", cam.pipeline.getAuto_align_avgCb());
+                telemetry.addData("Avg Cr: ", cam.pipeline.getAuto_align_avgCr());
+                telemetry.addData("Avg Y: ", cam.pipeline.getAuto_align_avgY());
+                telemetry.update();
+            }
             DT.motorsStop();
+//            break;
+
+            DT.turnToZero(0.2);
+
+
+            DT.drive(0.2, 5);
+            DT.turnToZero(0.2);
 
             wait(500);
 
             ILC.openClaw();
 
             DT.drive(0.2, -5);
-            DT.strafe("right", 0.4, 11);
+            DT.turnToZero(0.2);
 
             // park
-            ILC.liftMove(0);
+            ILC.liftMove(1);
             while(ILC.armMotor.isBusy()) {
                 telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
                 telemetry.update();
             }
 
             if(position.equals("right")) {
-                DT.strafe("right", 0.2, 29);
+                DT.strafe("right", 0.2, 40);
             } else if(position.equals("left")) {
-                DT.strafe("left", 0.2, 23);
+                DT.strafe("left", 0.2, 11);
+            } else {
+                DT.strafe("right", 0.2, 14);
             }
 
             DT.drive(0.2, -12);

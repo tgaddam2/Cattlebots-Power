@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-@TeleOp(name = "TeleOp One Controller")
+@TeleOp(name = "TeleOP One Controller")
 
 public class TeleOpFCOneController extends LinearOpMode
 {
@@ -19,12 +19,31 @@ public class TeleOpFCOneController extends LinearOpMode
 
     private ElapsedTime clawButtonTimer = new ElapsedTime();
     private ElapsedTime dPadTimer = new ElapsedTime();
+    private ElapsedTime headingFixTimer = new ElapsedTime();
+
+    int newLeftArmPos;
+    int newRightArmPos;
 
     @Override public void runOpMode() {
 
         ILC.initIntakeLiftCamera(hardwareMap);
         drivetrain.initDrivetrain(hardwareMap);
         drivetrain.initGyro(hardwareMap);
+
+        IMU imu;
+        IMU.Parameters parameters;
+        YawPitchRollAngles angles;
+
+        parameters = new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                        RevHubOrientationOnRobot.UsbFacingDirection.UP
+                )
+        );
+
+
+        imu = hardwareMap.get(IMU.class, "imu");
+        imu.initialize(parameters);
 
         // Wait until we're told to go
         waitForStart();
@@ -35,19 +54,20 @@ public class TeleOpFCOneController extends LinearOpMode
         dPadTimer.reset();
         boolean clawButton = false;
 
-        double speedScale = 0.5;
+        double speedScale = 0.4;
 
         // Loop and update the dashboard
         while (opModeIsActive()) {
             telemetry.update();
             // Control Robot Movement
+            angles = imu.getRobotYawPitchRollAngles();
             double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-            double robotAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+            double driveAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4 - angles.getYaw(AngleUnit.RADIANS);
             double rightX = gamepad1.right_stick_x;
-            final double FLPower = speedScale * (r * Math.cos(robotAngle) + rightX);
-            final double BLPower = speedScale * (r * Math.sin(robotAngle) + rightX);
-            final double FRPower = speedScale * (r * Math.sin(robotAngle) - rightX);
-            final double BRPower = speedScale * (r * Math.cos(robotAngle) - rightX);
+            final double FLPower = speedScale * (r * Math.cos(driveAngle) + rightX);
+            final double BLPower = speedScale * (r * Math.sin(driveAngle) + rightX);
+            final double FRPower = speedScale * (r * Math.sin(driveAngle) - rightX);
+            final double BRPower = speedScale * (r * Math.cos(driveAngle) - rightX);
 
             drivetrain.frontLeftDrive.setPower(FLPower);
             drivetrain.backLeftDrive.setPower(BLPower);
@@ -101,6 +121,11 @@ public class TeleOpFCOneController extends LinearOpMode
             }
             else if (gamepad1.dpad_down) {
                 ILC.dPadMove("down");
+            }
+
+            if(gamepad1.y && headingFixTimer.milliseconds() >= 500) {
+                headingFixTimer.reset();
+                drivetrain.imu.resetYaw();
             }
 
             if(gamepad1.left_trigger > 0.75) {

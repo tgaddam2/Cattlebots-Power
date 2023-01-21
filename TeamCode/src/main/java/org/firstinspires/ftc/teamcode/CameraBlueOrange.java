@@ -108,9 +108,9 @@ public class CameraBlueOrange
         static final int SLEEVE_REGION_WIDTH = 25;
         static final int SLEEVE_REGION_HEIGHT = 15;
 
-        static final Point AUTO_ALIGN_TOPLEFT_ANCHOR_POINT = new Point(0,40);
+        static final Point AUTO_ALIGN_TOPLEFT_ANCHOR_POINT = new Point(0,70);
         static final int AUTO_ALIGN_REGION_WIDTH = 145;
-        static final int AUTO_ALIGN_REGION_HEIGHT = 15;
+        static final int AUTO_ALIGN_REGION_HEIGHT = 10;
 
         /*
          * Points which actually define the sample region rectangles, derived from above values
@@ -154,6 +154,12 @@ public class CameraBlueOrange
         Mat CbImage = new Mat();
         int sleeve_avgY, sleeve_avgCr, sleeve_avgCb;
         int auto_align_avgY, auto_align_avgCr, auto_align_avgCb;
+
+        Mat RGB = new Mat();
+        Mat RImage = new Mat();
+        Mat GImage = new Mat();
+        Mat BImage = new Mat();
+        int avgR, avgG, avgB;
 
         // Volatile since accessed by OpMode thread w/o synchronization
         private volatile SignalPosition position = SignalPosition.RIGHT;
@@ -253,9 +259,9 @@ public class CameraBlueOrange
             sleeve_avgCr = (int) Core.mean(sleeve_Cr).val[0];
             sleeve_avgCb = (int) Core.mean(sleeve_Cb).val[0];
 
-            auto_align_avgY = (int) Core.mean(sleeve_Y).val[0];
-            auto_align_avgCr = (int) Core.mean(sleeve_Cr).val[0];
-            auto_align_avgCb = (int) Core.mean(sleeve_Cb).val[0];
+            auto_align_avgY = (int) Core.mean(auto_align_Y).val[0];
+            auto_align_avgCr = (int) Core.mean(auto_align_Cr).val[0];
+            auto_align_avgCb = (int) Core.mean(auto_align_Cb).val[0];
 
             /*
              * Draw a rectangle showing sample sleeve box on the screen.
@@ -329,7 +335,7 @@ public class CameraBlueOrange
                         -1); // Negative thickness means solid fill
             }
 
-            if(sleeve_avgCb > 95 && sleeve_avgCb < 110) {
+            if(auto_align_avgCb >= 40 && auto_align_avgCb <= 110) {
                 aligned = AutoAligned.YES; // Record our analysis
                 StringAligned = "YES";
 
@@ -343,6 +349,10 @@ public class CameraBlueOrange
                         auto_align_pointB, // Second point which defines the rectangle
                         YELLOW, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
+            }
+            else {
+                aligned = AutoAligned.NO;
+                StringAligned = "NO";
             }
 
             /*

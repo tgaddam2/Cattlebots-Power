@@ -62,13 +62,18 @@ public class CameraTest extends LinearOpMode {
         while (opModeIsActive()) {
             position = cam.getStringPosition().toLowerCase();
             int avgCb = cam.pipeline.getAuto_align_avgCb();
+            int avgCr = cam.pipeline.getAuto_align_avgCr();
+            int avgY = cam.pipeline.getAuto_align_avgY();
 
             packet.put("Position", position);
             packet.put("Avg CB", avgCb);
             dashboard.sendTelemetryPacket(packet);
 
-//            telemetry.addData("Position: ", position);
-//            telemetry.update();
+            telemetry.addData("Avg Cb: ", avgCb);
+            telemetry.addData("Avg Cr: ", avgCr);
+            telemetry.addData("Avg Y: ", avgY);
+            telemetry.addData("Aligned: ", cam.pipeline.getAlignedAnalysis().equals("NO"));
+            telemetry.update();
         }
     }
 

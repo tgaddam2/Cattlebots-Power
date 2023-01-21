@@ -85,7 +85,7 @@ public class LeftAuto extends LinearOpMode {
 
             DT.drive(0.2, -4);
             DT.strafe("left", 0.2, 11);
-            DT.turnToZero(0.2, "right");
+            DT.turnToZero(0.2);
 
             // park
             ILC.liftMove(1);

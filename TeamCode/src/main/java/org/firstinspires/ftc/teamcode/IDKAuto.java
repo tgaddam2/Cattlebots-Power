@@ -33,18 +33,17 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.CameraBlueOrange;
-import org.firstinspires.ftc.teamcode.Drivetrain;
-import org.firstinspires.ftc.teamcode.IntakeLiftCamera;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 
-@Autonomous(name = "testAuto")
+@Autonomous(name = "idkAuto")
 
-public class TestAuto extends LinearOpMode {
+public class IDKAuto extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain DT = new Drivetrain(this);
 
@@ -64,67 +63,22 @@ public class TestAuto extends LinearOpMode {
         // Wait until we're told to go
         waitForStart();
 
+        YawPitchRollAngles angles;
+
         // Loop and update the dashboard
         while (opModeIsActive()) {
-            String position = cam.getStringPosition().toLowerCase();
-            wait(1000);
-            position = cam.getStringPosition().toLowerCase();
+            angles = DT.imu.getRobotYawPitchRollAngles();
 
-            //score starting cone
-            ILC.closeClaw();
-
-            DT.drive(0.2, 48);
-            ILC.liftMove(3);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
-//            DT.turn(0.2, 0, "left");
-//            DT.turnToZero(0.2, "right");
-
-            DT.startStrafe("left", 0.4);
-            while(cam.pipeline.getAlignedAnalysis().equals("NO")) {
-                telemetry.addData("Aligned: ", cam.pipeline.getAlignedAnalysis().equals("NO"));
-                telemetry.update();
-            }
-            DT.motorsStop();
-
-//            DT.startDrive(0.2, "forward");
-//            while(tripleCam.frontPipeline.getAlignedAnalysis().equals("NO")) {}
-//            DT.motorsStop();
-            DT.drive(0.2, 5);
-
-            wait(500);
-
-            ILC.openClaw();
-
-            DT.drive(0.2, -5);
-            DT.strafe("right", 0.4, 11);
-
-            // park
-            ILC.liftMove(0);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
-
-            if(position.equals("right")) {
-                DT.strafe("right", 0.2, 29);
-            } else if(position.equals("left")) {
-                DT.strafe("left", 0.2, 23);
-            }
-
-            DT.drive(0.2, -12);
-
-            ILC.liftMove(0);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
-
-            telemetry.addData("Position: %s", position);
-
+            telemetry.addData("Yaw: ", angles.getYaw(AngleUnit.DEGREES));
+            telemetry.addData("Roll: ", angles.getRoll(AngleUnit.DEGREES));
+            telemetry.addData("Pitch: ", angles.getPitch(AngleUnit.DEGREES));
             telemetry.update();
+
+            DT.turn(0.3, 50, "left");
+
+            wait(1000);
+
+            DT.turnToZero(0.3);
 
             break;
         }
