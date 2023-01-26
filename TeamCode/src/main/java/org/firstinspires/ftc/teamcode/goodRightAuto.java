@@ -1,48 +1,16 @@
-/* Copyright (c) 2017 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.CameraBlueOrange;
-import org.firstinspires.ftc.teamcode.Drivetrain;
-import org.firstinspires.ftc.teamcode.IntakeLiftCamera;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 
-@Autonomous(name = "testAuto")
+@Autonomous(name = "goodRightAuto")
 
 public class TestAuto extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
@@ -50,16 +18,12 @@ public class TestAuto extends LinearOpMode {
 
     CameraBlueOrange.SEDPipeline pipeline;
 
-    private ElapsedTime runtime = new ElapsedTime();
-
     @Override public void runOpMode() {
         CameraBlueOrange cam = new CameraBlueOrange(hardwareMap);
-        cam.initCamera();
-
-//        TripleCamera tripleCam = new TripleCamera(hardwareMap);
-//        tripleCam.initCamera();
 
         ILC.initIntakeLiftCamera(hardwareMap);
+
+        cam.initCamera();
         DT.initDrivetrain(hardwareMap);
         DT.initGyro(hardwareMap);
 
@@ -75,20 +39,16 @@ public class TestAuto extends LinearOpMode {
             //score starting cone
             ILC.closeClaw();
 
-            DT.drive(0.2, 48);
+            DT.drive(0.3, 44);
             ILC.liftMove(3);
-            runtime.reset();
-            while(ILC.armMotor.isBusy() && runtime.milliseconds() < 6000) {
+            while(ILC.armMotor.isBusy()) {
                 telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.addData("Aligned: ", cam.pipeline.getAlignedAnalysis().equals("NO"));
                 telemetry.update();
             }
-//            DT.turn(0.2, 0, "left");
-            DT.turnToZero(0.3);
+            DT.turn(0.2, 0, "left");
 
-            cam.initCamera();
-
-            DT.strafe2("left", 0.1, 25);
+//            DT.strafe("left", 0.4, 12);
+            DT.strafe2("left", 0.3, 20);
             while(cam.pipeline.getAlignedAnalysis().equals("NO")) {
                 telemetry.addData("Aligned: ", cam.pipeline.getAlignedAnalysis().equals("NO"));
                 telemetry.addData("Avg Cb: ", cam.pipeline.getAuto_align_avgCb());
@@ -96,21 +56,14 @@ public class TestAuto extends LinearOpMode {
                 telemetry.addData("Avg Y: ", cam.pipeline.getAuto_align_avgY());
                 telemetry.update();
             }
-            DT.motorsStop();
-//            break;
-
-            DT.turnToZero(0.2);
-
-
-            DT.drive(0.2, 5);
-            DT.turnToZero(0.2);
+            DT.drive(0.2, 8);
 
             wait(500);
 
             ILC.openClaw();
 
             DT.drive(0.2, -5);
-            DT.turnToZero(0.2);
+            DT.strafe("right", 0.4, 11);
 
             // park
             ILC.liftMove(1);
@@ -120,11 +73,9 @@ public class TestAuto extends LinearOpMode {
             }
 
             if(position.equals("right")) {
-                DT.strafe("right", 0.2, 40);
+                DT.strafe("right", 0.2, 27);
             } else if(position.equals("left")) {
-                DT.strafe("left", 0.2, 11);
-            } else {
-                DT.strafe("right", 0.2, 14);
+                DT.strafe("left", 0.2, 25);
             }
 
             DT.drive(0.2, -12);
