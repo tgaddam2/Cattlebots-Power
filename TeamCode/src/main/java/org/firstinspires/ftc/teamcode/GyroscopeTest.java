@@ -37,7 +37,8 @@ public class GyroscopeTest extends LinearOpMode
 
         // Wait until we're told to go
         waitForStart();
-
+        drivetrain.initDrivetrain(hardwareMap);
+        drivetrain.initGyro(hardwareMap);
 
         // Loop and update the dashboard
         while (opModeIsActive()) {
@@ -47,6 +48,10 @@ public class GyroscopeTest extends LinearOpMode
             telemetry.addData("Pitch: ", angles.getPitch(AngleUnit.DEGREES));
             telemetry.addData("Roll: ", angles.getRoll(AngleUnit.DEGREES));
             telemetry.update();
+
+            if(gamepad1.a) {
+                drivetrain.turn(0.2, 89, "left");
+            }
         }
     }
 }

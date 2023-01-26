@@ -10,9 +10,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 
-@Autonomous(name = "goodRightAuto")
+@Autonomous(name = "goodLeftAuto")
 
-public class goodRightAuto extends LinearOpMode {
+public class goodLeftAuto extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain DT = new Drivetrain(this);
 
@@ -39,7 +39,7 @@ public class goodRightAuto extends LinearOpMode {
             //score starting cone
             ILC.closeClaw();
 
-            DT.drive(0.3, 44);
+            DT.drive(0.3, 46);
             ILC.liftMove(3);
             while(ILC.armMotor.isBusy()) {
                 telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
@@ -48,22 +48,25 @@ public class goodRightAuto extends LinearOpMode {
             DT.turn(0.2, 0, "left");
 
 //            DT.strafe("left", 0.4, 12);
-            DT.strafe2("left", 0.3, 20);
-            while(cam.pipeline.getAlignedAnalysis().equals("NO")) {
-                telemetry.addData("Aligned: ", cam.pipeline.getAlignedAnalysis().equals("NO"));
-                telemetry.addData("Avg Cb: ", cam.pipeline.getAuto_align_avgCb());
-                telemetry.addData("Avg Cr: ", cam.pipeline.getAuto_align_avgCr());
-                telemetry.addData("Avg Y: ", cam.pipeline.getAuto_align_avgY());
+            DT.strafe2("right", 0.3, 20);
+            while(cam.pipeline.getLeftAlignedAnalysis().equals("NO")) {
+                telemetry.addData("Aligned: ", cam.pipeline.getLeftAlignedAnalysis().equals("NO"));
+                telemetry.addData("Avg Cb: ", cam.pipeline.getLeft_align_avgCb());
+                telemetry.addData("Avg Cr: ", cam.pipeline.getLeft_align_avgCr());
+                telemetry.addData("Avg Y: ", cam.pipeline.getLeft_align_avgY());
+                telemetry.addData("Position: ", position);
                 telemetry.update();
             }
-            DT.drive(0.2, 8);
+            DT.drive(0.2, 6);
 
             wait(500);
 
             ILC.openClaw();
 
+            wait(500);
+
             DT.drive(0.2, -5);
-            DT.strafe("right", 0.4, 11);
+            DT.strafe("left", 0.2, 11);
 
             // park
             ILC.liftMove(1);
@@ -75,7 +78,7 @@ public class goodRightAuto extends LinearOpMode {
             if(position.equals("right")) {
                 DT.strafe("right", 0.2, 27);
             } else if(position.equals("left")) {
-                DT.strafe("left", 0.2, 25);
+                DT.strafe("left", 0.2, 28);
             }
 
             DT.drive(0.2, -12);

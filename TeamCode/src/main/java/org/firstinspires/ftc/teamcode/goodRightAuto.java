@@ -12,7 +12,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 
 @Autonomous(name = "goodRightAuto")
 
-public class TestAuto extends LinearOpMode {
+public class goodRightAuto extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain DT = new Drivetrain(this);
 
@@ -33,13 +33,18 @@ public class TestAuto extends LinearOpMode {
         // Loop and update the dashboard
         while (opModeIsActive()) {
             String position = cam.getStringPosition().toLowerCase();
-            wait(1000);
+            wait(500);
             position = cam.getStringPosition().toLowerCase();
 
             //score starting cone
+//            ILC.closeClaw();
+            ILC.armLeft.setPosition(0.4);
+            ILC.armRight.setPosition(0.6);
+
+            DT.drive(0.3, 46);
+
             ILC.closeClaw();
 
-            DT.drive(0.3, 44);
             ILC.liftMove(3);
             while(ILC.armMotor.isBusy()) {
                 telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
@@ -47,16 +52,26 @@ public class TestAuto extends LinearOpMode {
             }
             DT.turn(0.2, 0, "left");
 
-//            DT.strafe("left", 0.4, 12);
-            DT.strafe2("left", 0.3, 20);
-            while(cam.pipeline.getAlignedAnalysis().equals("NO")) {
-                telemetry.addData("Aligned: ", cam.pipeline.getAlignedAnalysis().equals("NO"));
-                telemetry.addData("Avg Cb: ", cam.pipeline.getAuto_align_avgCb());
-                telemetry.addData("Avg Cr: ", cam.pipeline.getAuto_align_avgCr());
-                telemetry.addData("Avg Y: ", cam.pipeline.getAuto_align_avgY());
+            DT.strafe("left", 0.2, 26);
+//            DT.strafe2("left", 0.2, 20);
+//            while(cam.pipeline.getRightAlignedAnalysis().equals("NO")) {
+//                telemetry.addData("Aligned: ", cam.pipeline.getRightAlignedAnalysis().equals("NO"));
+//                telemetry.addData("Avg Cb: ", cam.pipeline.getRight_align_avgCb());
+//                telemetry.addData("Avg Cr: ", cam.pipeline.getRight_align_avgCr());
+//                telemetry.addData("Avg Y: ", cam.pipeline.getRight_align_avgY());
+//                telemetry.update();
+//            }
+
+            DT.strafe2("right", 0.2, 20);
+            while(cam.pipeline.getLeftAlignedAnalysis().equals("NO")) {
+                telemetry.addData("Aligned: ", cam.pipeline.getLeftAlignedAnalysis().equals("NO"));
+                telemetry.addData("Avg Cb: ", cam.pipeline.getLeft_align_avgCb());
+                telemetry.addData("Avg Cr: ", cam.pipeline.getLeft_align_avgCr());
+                telemetry.addData("Avg Y: ", cam.pipeline.getLeft_align_avgY());
+                telemetry.addData("Position: ", position);
                 telemetry.update();
             }
-            DT.drive(0.2, 8);
+            DT.drive(0.2, 6);
 
             wait(500);
 
@@ -64,6 +79,42 @@ public class TestAuto extends LinearOpMode {
 
             DT.drive(0.2, -5);
             DT.strafe("right", 0.4, 11);
+
+            // get another cone
+            DT.turn(0.2, 87, "right");
+            ILC.coneMove(5);
+            while(ILC.armMotor.isBusy()) {
+                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
+                telemetry.update();
+            }
+
+            DT.drive(0.3, 30);
+            wait(200);
+
+            ILC.closeClaw();
+            wait(300);
+            ILC.liftMove(3);
+
+            DT.drive(0.2, -30);
+            DT.turn(0.2, 175, "right");
+
+            DT.strafe2("right", 0.2, 20);
+            while(cam.pipeline.getLeftAlignedAnalysis().equals("NO")) {
+                telemetry.addData("Aligned: ", cam.pipeline.getLeftAlignedAnalysis().equals("NO"));
+                telemetry.addData("Avg Cb: ", cam.pipeline.getLeft_align_avgCb());
+                telemetry.addData("Avg Cr: ", cam.pipeline.getLeft_align_avgCr());
+                telemetry.addData("Avg Y: ", cam.pipeline.getLeft_align_avgY());
+                telemetry.addData("Position: ", position);
+                telemetry.update();
+            }
+
+            DT.drive(0.2, 7);
+            ILC.openClaw();
+
+            DT.drive(0.2, -5);
+
+            DT.strafe("left", 0.2, 11);
+            ILC.liftMove(1);
 
             // park
             ILC.liftMove(1);
@@ -75,7 +126,7 @@ public class TestAuto extends LinearOpMode {
             if(position.equals("right")) {
                 DT.strafe("right", 0.2, 27);
             } else if(position.equals("left")) {
-                DT.strafe("left", 0.2, 25);
+                DT.strafe("left", 0.2, 27);
             }
 
             DT.drive(0.2, -12);

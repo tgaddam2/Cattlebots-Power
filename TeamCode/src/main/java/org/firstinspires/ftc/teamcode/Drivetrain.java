@@ -346,6 +346,7 @@ public class Drivetrain {
         imu = hwMap.get(IMU.class, "imu");
         angles = imu.getRobotYawPitchRollAngles();
         imu.initialize(parameters);
+        imu.resetYaw();
     }
 
     void initEncoders() {

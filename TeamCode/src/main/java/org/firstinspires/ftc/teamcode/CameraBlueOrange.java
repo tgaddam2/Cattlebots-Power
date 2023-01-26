@@ -87,7 +87,11 @@ public class CameraBlueOrange
             CENTER,
             RIGHT
         }
-        public enum AutoAligned {
+        public enum RightAligned {
+            YES,
+            NO
+        }
+        public enum LeftAligned {
             YES,
             NO
         }
@@ -108,9 +112,13 @@ public class CameraBlueOrange
         static final int SLEEVE_REGION_WIDTH = 25;
         static final int SLEEVE_REGION_HEIGHT = 15;
 
-        static final Point AUTO_ALIGN_TOPLEFT_ANCHOR_POINT = new Point(0,70);
-        static final int AUTO_ALIGN_REGION_WIDTH = 145;
-        static final int AUTO_ALIGN_REGION_HEIGHT = 10;
+        static final Point RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT = new Point(0,105);
+        static final int RIGHT_ALIGN_REGION_WIDTH = 145;
+        static final int RIGHT_ALIGN_REGION_HEIGHT = 10;
+
+        static final Point LEFT_ALIGN_TOPLEFT_ANCHOR_POINT = new Point(0,50);
+        static final int LEFT_ALIGN_REGION_WIDTH = 50;
+        static final int LEFT_ALIGN_REGION_HEIGHT = 10;
 
         /*
          * Points which actually define the sample region rectangles, derived from above values
@@ -136,24 +144,33 @@ public class CameraBlueOrange
                 SLEEVE_TOPLEFT_ANCHOR_POINT.x + SLEEVE_REGION_WIDTH,
                 SLEEVE_TOPLEFT_ANCHOR_POINT.y + SLEEVE_REGION_HEIGHT);
 
-        Point auto_align_pointA = new Point(
-                AUTO_ALIGN_TOPLEFT_ANCHOR_POINT.x,
-                AUTO_ALIGN_TOPLEFT_ANCHOR_POINT.y);
-        Point auto_align_pointB = new Point(
-                AUTO_ALIGN_TOPLEFT_ANCHOR_POINT.x + AUTO_ALIGN_REGION_WIDTH,
-                AUTO_ALIGN_TOPLEFT_ANCHOR_POINT.y + AUTO_ALIGN_REGION_HEIGHT);
+        Point right_align_pointA = new Point(
+                RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT.x,
+                RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT.y);
+        Point right_align_pointB = new Point(
+                RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT.x + RIGHT_ALIGN_REGION_WIDTH,
+                RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT.y + RIGHT_ALIGN_REGION_HEIGHT);
+
+        Point left_align_pointA = new Point(
+                LEFT_ALIGN_TOPLEFT_ANCHOR_POINT.x,
+                LEFT_ALIGN_TOPLEFT_ANCHOR_POINT.y);
+        Point left_align_pointB = new Point(
+                LEFT_ALIGN_TOPLEFT_ANCHOR_POINT.x + LEFT_ALIGN_REGION_WIDTH,
+                LEFT_ALIGN_TOPLEFT_ANCHOR_POINT.y + LEFT_ALIGN_REGION_HEIGHT);
 
         /*
          * Working variables
          */
         Mat sleeve_Y, sleeve_Cr, sleeve_Cb;
-        Mat auto_align_Y, auto_align_Cr, auto_align_Cb;
+        Mat right_align_Y, right_align_Cr, right_align_Cb;
+        Mat left_align_Y, left_align_Cr, left_align_Cb;
         Mat YCrCb = new Mat();
         Mat YImage = new Mat();
         Mat CrImage = new Mat();
         Mat CbImage = new Mat();
         int sleeve_avgY, sleeve_avgCr, sleeve_avgCb;
-        int auto_align_avgY, auto_align_avgCr, auto_align_avgCb;
+        int right_align_avgY, right_align_avgCr, right_align_avgCb;
+        int left_align_avgY, left_align_avgCr, left_align_avgCb;
 
         Mat RGB = new Mat();
         Mat RImage = new Mat();
@@ -165,8 +182,11 @@ public class CameraBlueOrange
         private volatile SignalPosition position = SignalPosition.RIGHT;
         private volatile String StringPos = "CENTER";
 
-        private volatile AutoAligned aligned = AutoAligned.NO;
-        private volatile String StringAligned = "NO";
+        private volatile RightAligned rightAligned = RightAligned.NO;
+        private volatile String StringRightAligned = "NO";
+
+        private volatile LeftAligned leftAligned = LeftAligned.NO;
+        private volatile String StringLeftAligned = "NO";
 
         /*
          * This function takes the RGB frame, converts to YCrCb,
@@ -201,9 +221,13 @@ public class CameraBlueOrange
             sleeve_Cr = CrImage.submat(new Rect(sleeve_pointA, sleeve_pointB));
             sleeve_Cb = CbImage.submat(new Rect(sleeve_pointA, sleeve_pointB));
 
-            auto_align_Y = YImage.submat(new Rect(auto_align_pointA, auto_align_pointB));
-            auto_align_Cr = CrImage.submat(new Rect(auto_align_pointA, auto_align_pointB));
-            auto_align_Cb = CbImage.submat(new Rect(auto_align_pointA, auto_align_pointB));
+            right_align_Y = YImage.submat(new Rect(right_align_pointA, right_align_pointB));
+            right_align_Cr = CrImage.submat(new Rect(right_align_pointA, right_align_pointB));
+            right_align_Cb = CbImage.submat(new Rect(right_align_pointA, right_align_pointB));
+
+            left_align_Y = YImage.submat(new Rect(left_align_pointA, left_align_pointB));
+            left_align_Cr = CrImage.submat(new Rect(left_align_pointA, left_align_pointB));
+            left_align_Cb = CbImage.submat(new Rect(left_align_pointA, left_align_pointB));
         }
 
         @Override
@@ -259,14 +283,14 @@ public class CameraBlueOrange
             sleeve_avgCr = (int) Core.mean(sleeve_Cr).val[0];
             sleeve_avgCb = (int) Core.mean(sleeve_Cb).val[0];
 
-            auto_align_avgY = (int) Core.mean(auto_align_Y).val[0];
-            auto_align_avgCr = (int) Core.mean(auto_align_Cr).val[0];
-            auto_align_avgCb = (int) Core.mean(auto_align_Cb).val[0];
+            right_align_avgY = (int) Core.mean(right_align_Y).val[0];
+            right_align_avgCr = (int) Core.mean(right_align_Cr).val[0];
+            right_align_avgCb = (int) Core.mean(right_align_Cb).val[0];
 
-            /*
-             * Draw a rectangle showing sample sleeve box on the screen.
-             * Simply a visual aid. Serves no functional purpose.
-             */
+            left_align_avgY = (int) Core.mean(left_align_Y).val[0];
+            left_align_avgCr = (int) Core.mean(left_align_Cr).val[0];
+            left_align_avgCb = (int) Core.mean(left_align_Cb).val[0];
+
             Imgproc.rectangle(
                     input, // Buffer to draw on
                     sleeve_pointA, // First point which defines the rectangle
@@ -274,29 +298,24 @@ public class CameraBlueOrange
                     GREEN, // The color the rectangle is drawn in
                     2); // Thickness of the rectangle lines
 
-            /*
-             * Draw a rectangle showing sample sleeve box on the screen.
-             * Simply a visual aid. Serves no functional purpose.
-             */
             Imgproc.rectangle(
                     input, // Buffer to draw on
-                    auto_align_pointA, // First point which defines the rectangle
-                    auto_align_pointB, // Second point which defines the rectangle
+                    right_align_pointA, // First point which defines the rectangle
+                    right_align_pointB, // Second point which defines the rectangle
                     GREEN, // The color the rectangle is drawn in
                     2); // Thickness of the rectangle lines
 
-            /*
-             * Now that we found the min, we actually need to go and
-             * figure out which sample region that value was from
-             */
+            Imgproc.rectangle(
+                    input, // Buffer to draw on
+                    left_align_pointA, // First point which defines the rectangle
+                    left_align_pointB, // Second point which defines the rectangle
+                    GREEN, // The color the rectangle is drawn in
+                    2); // Thickness of the rectangle lines
+
             if(sleeve_avgCb - sleeve_avgCr > 20) {
                 position = SignalPosition.LEFT; // Record our analysis
                 StringPos = "RIGHT";
 
-                /*
-                 * Draw a solid rectangle on top of the chosen region.
-                 * Simply a visual aid. Serves no functional purpose.
-                 */
                 Imgproc.rectangle(
                         input, // Buffer to draw on
                         sleeve_pointA, // First point which defines the rectangle
@@ -308,10 +327,6 @@ public class CameraBlueOrange
                 position = SignalPosition.RIGHT; // Record our analysis
                 StringPos = "LEFT";
 
-                /*
-                 * Draw a solid rectangle on top of the chosen region.
-                 * Simply a visual aid. Serves no functional purpose.
-                 */
                 Imgproc.rectangle(
                         input, // Buffer to draw on
                         sleeve_pointA, // First point which defines the rectangle
@@ -323,10 +338,6 @@ public class CameraBlueOrange
                 position = SignalPosition.CENTER; // Record our analysis
                 StringPos = "CENTER";
 
-                /*
-                 * Draw a solid rectangle on top of the chosen region.
-                 * Simply a visual aid. Serves no functional purpose.
-                 */
                 Imgproc.rectangle(
                         input, // Buffer to draw on
                         sleeve_pointA, // First point which defines the rectangle
@@ -335,24 +346,36 @@ public class CameraBlueOrange
                         -1); // Negative thickness means solid fill
             }
 
-            if(auto_align_avgCb >= 40 && auto_align_avgCb <= 110) {
-                aligned = AutoAligned.YES; // Record our analysis
-                StringAligned = "YES";
+            if(right_align_avgCb >= 40 && right_align_avgCb <= 110) {
+                rightAligned = RightAligned.YES; // Record our analysis
+                StringRightAligned = "YES";
 
-                /*
-                 * Draw a solid rectangle on top of the chosen region.
-                 * Simply a visual aid. Serves no functional purpose.
-                 */
                 Imgproc.rectangle(
                         input, // Buffer to draw on
-                        auto_align_pointA, // First point which defines the rectangle
-                        auto_align_pointB, // Second point which defines the rectangle
+                        right_align_pointA, // First point which defines the rectangle
+                        right_align_pointB, // Second point which defines the rectangle
                         YELLOW, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
             else {
-                aligned = AutoAligned.NO;
-                StringAligned = "NO";
+                rightAligned = RightAligned.NO;
+                StringRightAligned = "NO";
+            }
+
+            if(left_align_avgCb >= 40 && left_align_avgCb <= 110) {
+                leftAligned = leftAligned.YES; // Record our analysis
+                StringLeftAligned = "YES";
+
+                Imgproc.rectangle(
+                        input, // Buffer to draw on
+                        left_align_pointA, // First point which defines the rectangle
+                        left_align_pointB, // Second point which defines the rectangle
+                        YELLOW, // The color the rectangle is drawn in
+                        -1); // Negative thickness means solid fill
+            }
+            else {
+                leftAligned = leftAligned.NO;
+                StringLeftAligned = "NO";
             }
 
             /*
@@ -376,23 +399,37 @@ public class CameraBlueOrange
             return StringPos;
         }
 
-        public String getAlignedAnalysis()
+        public String getRightAlignedAnalysis()
         {
-            return StringAligned;
+            return StringRightAligned;
+        }
+        public String getLeftAlignedAnalysis()
+        {
+            return StringLeftAligned;
         }
 
         public int getSleeve_avgY() { return sleeve_avgY; }
         public int getSleeve_avgCr() { return sleeve_avgCr; }
         public int getSleeve_avgCb() { return sleeve_avgCb; }
 
-        public int getAuto_align_avgY() {
-            return auto_align_avgY;
+        public int getRight_align_avgY() {
+            return right_align_avgY;
         }
-        public int getAuto_align_avgCr() {
-            return auto_align_avgCr;
+        public int getRight_align_avgCr() {
+            return right_align_avgCr;
         }
-        public int getAuto_align_avgCb() {
-            return auto_align_avgCb;
+        public int getRight_align_avgCb() {
+            return right_align_avgCb;
+        }
+
+        public int getLeft_align_avgY() {
+            return left_align_avgY;
+        }
+        public int getLeft_align_avgCr() {
+            return left_align_avgCr;
+        }
+        public int getLeft_align_avgCb() {
+            return left_align_avgCb;
         }
     }
 }

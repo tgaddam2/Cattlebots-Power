@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -21,15 +22,15 @@ public class IntakeLiftCamera {
 
     double ArmSpeed = 0.5;
 
-    int highJunctionPos = -4200;
-    int midJunctionPos = -3000;
-    int lowJunctionPos = -1800;
+    int highJunctionPos = 4200;
+    int midJunctionPos = 3000;
+    int lowJunctionPos = 1800;
     int groundJunctionPos = 0;
 
-    int cone5Pos = -760;
-    int cone4Pos = -540;
-    int cone3Pos = -415;
-    int cone2Pos = -220;
+    int cone5Pos = 760;
+    int cone4Pos = 540;
+    int cone3Pos = 415;
+    int cone2Pos = 220;
     int cone1Pos = 0;
 
     LinearOpMode opMode;
@@ -128,7 +129,7 @@ public class IntakeLiftCamera {
         armLeft.setPosition(0.45);
         armRight.setPosition(0.55);
 
-        armMotor.setDirection(DcMotor.Direction.FORWARD);
+        armMotor.setDirection(DcMotor.Direction.REVERSE);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armMotor.setPower(0);
