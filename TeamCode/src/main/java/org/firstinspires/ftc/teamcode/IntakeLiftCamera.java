@@ -79,6 +79,12 @@ public class IntakeLiftCamera {
         armMotor.setPower(0.8);
     }
 
+    public void encoderLiftMove(int position) {
+        armMotor.setTargetPosition(position);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(0.8);
+    }
+
     public void coneMove(int position) {
         int encoderPos = 0;
 

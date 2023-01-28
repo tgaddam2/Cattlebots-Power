@@ -230,14 +230,14 @@ public class Drivetrain {
     }
 
     void turn(double power, double angle, String direction) {
-        angles = imu.getRobotYawPitchRollAngles();
-
         frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         imu.resetYaw();
+        wait(50);
+        angles = imu.getRobotYawPitchRollAngles();
 
         if (direction.equals("left")) {
             power *= -1;
@@ -253,6 +253,8 @@ public class Drivetrain {
             opMode.telemetry.update();
             angles = imu.getRobotYawPitchRollAngles();
         }
+
+        imu.resetYaw();
 
         frontLeftDrive.setPower(0);
         backLeftDrive.setPower(0);
@@ -359,5 +361,11 @@ public class Drivetrain {
         backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void wait(int milliseconds) {
+        ElapsedTime waitTimer = new ElapsedTime();
+        waitTimer.startTime();
+        while(waitTimer.milliseconds() < milliseconds) {}
     }
 }

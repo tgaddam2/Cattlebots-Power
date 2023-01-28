@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.openftc.easyopencv.OpenCvCamera;
@@ -62,7 +63,7 @@ public class goodRightAuto extends LinearOpMode {
 //                telemetry.update();
 //            }
 
-            DT.strafe2("right", 0.2, 20);
+            DT.strafe2("right", 0.1, 20);
             while(cam.pipeline.getLeftAlignedAnalysis().equals("NO")) {
                 telemetry.addData("Aligned: ", cam.pipeline.getLeftAlignedAnalysis().equals("NO"));
                 telemetry.addData("Avg Cb: ", cam.pipeline.getLeft_align_avgCb());
@@ -72,8 +73,13 @@ public class goodRightAuto extends LinearOpMode {
                 telemetry.update();
             }
             DT.drive(0.2, 6);
+            wait(50);
 
-            wait(500);
+            ILC.encoderLiftMove(3785);
+            while(ILC.armMotor.isBusy()) {
+                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
+                telemetry.update();
+            }
 
             ILC.openClaw();
 
@@ -88,17 +94,25 @@ public class goodRightAuto extends LinearOpMode {
                 telemetry.update();
             }
 
-            DT.drive(0.3, 30);
+            DT.drive(0.3, 25);
             wait(200);
 
             ILC.closeClaw();
             wait(300);
             ILC.liftMove(3);
 
-            DT.drive(0.2, -30);
-            DT.turn(0.2, 175, "right");
+            DT.drive(0.2, -20);
+            DT.turn(0.2, 90, "left");
 
-            DT.strafe2("right", 0.2, 20);
+            ILC.liftMove(3);
+            while(ILC.armMotor.isBusy()) {
+                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
+                telemetry.update();
+            }
+
+            DT.strafe("left", 0.3, 20);
+
+            DT.strafe2("right", 0.1, 20);
             while(cam.pipeline.getLeftAlignedAnalysis().equals("NO")) {
                 telemetry.addData("Aligned: ", cam.pipeline.getLeftAlignedAnalysis().equals("NO"));
                 telemetry.addData("Avg Cb: ", cam.pipeline.getLeft_align_avgCb());
@@ -109,12 +123,13 @@ public class goodRightAuto extends LinearOpMode {
             }
 
             DT.drive(0.2, 7);
+            wait(50);
+
             ILC.openClaw();
 
             DT.drive(0.2, -5);
 
-            DT.strafe("left", 0.2, 11);
-            ILC.liftMove(1);
+            DT.strafe("right", 0.2, 11);
 
             // park
             ILC.liftMove(1);
