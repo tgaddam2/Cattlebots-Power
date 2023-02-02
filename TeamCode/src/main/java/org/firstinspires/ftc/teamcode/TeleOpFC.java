@@ -21,8 +21,7 @@ public class TeleOpFCDriveTest extends LinearOpMode
     private ElapsedTime dPadTimer = new ElapsedTime();
     private ElapsedTime headingFixTimer = new ElapsedTime();
 
-    int newLeftArmPos;
-    int newRightArmPos;
+    int position = 0;
 
     @Override public void runOpMode() {
 
@@ -69,10 +68,10 @@ public class TeleOpFCDriveTest extends LinearOpMode
             final double FRPower = speedScale * (r * Math.sin(driveAngle) - rightX);
             final double BRPower = speedScale * (r * Math.cos(driveAngle) - rightX);
 
-            drivetrain.frontLeftDrive.setPower(FLPower);
-            drivetrain.backLeftDrive.setPower(BLPower);
-            drivetrain.frontRightDrive.setPower(FRPower);
-            drivetrain.backRightDrive.setPower(BRPower);
+            drivetrain.FLMotor.setPower(FLPower);
+            drivetrain.BLMotor.setPower(BLPower);
+            drivetrain.FRMotor.setPower(FRPower);
+            drivetrain.BRMotor.setPower(BRPower);
 
             // turn intake on and off
             if(gamepad2.right_bumper && clawButtonTimer.milliseconds() >= 250) {
@@ -102,18 +101,18 @@ public class TeleOpFCDriveTest extends LinearOpMode
             if(gamepad1.left_trigger > 0.75) {
                 speedScale = 0.7;
 
-                drivetrain.frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                drivetrain.frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                drivetrain.backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                drivetrain.backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                drivetrain.FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                drivetrain.FRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                drivetrain.BLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                drivetrain.BRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             }
             else {
                 speedScale = 0.4;
 
-                drivetrain.frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                drivetrain.frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                drivetrain.backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                drivetrain.backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                drivetrain.FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                drivetrain.FRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                drivetrain.BLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                drivetrain.BRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
 
             if(gamepad2.dpad_up) {

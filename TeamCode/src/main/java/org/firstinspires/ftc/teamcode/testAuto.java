@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.openftc.easyopencv.OpenCvCamera;
@@ -38,11 +37,10 @@ public class goodRightAuto extends LinearOpMode {
             position = cam.getStringPosition().toLowerCase();
 
             //score starting cone
-//            ILC.closeClaw();
             ILC.armLeft.setPosition(0.4);
             ILC.armRight.setPosition(0.6);
 
-            DT.drive(0.3, 46);
+            DT.drive(0.3, 50);
 
             ILC.closeClaw();
 
@@ -51,28 +49,22 @@ public class goodRightAuto extends LinearOpMode {
                 telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
                 telemetry.update();
             }
-            DT.turn(0.2, 0, "left");
+            DT.turnToZero(0.2);
 
             DT.strafe("left", 0.2, 26);
-//            DT.strafe2("left", 0.2, 20);
-//            while(cam.pipeline.getRightAlignedAnalysis().equals("NO")) {
-//                telemetry.addData("Aligned: ", cam.pipeline.getRightAlignedAnalysis().equals("NO"));
-//                telemetry.addData("Avg Cb: ", cam.pipeline.getRight_align_avgCb());
-//                telemetry.addData("Avg Cr: ", cam.pipeline.getRight_align_avgCr());
-//                telemetry.addData("Avg Y: ", cam.pipeline.getRight_align_avgY());
-//                telemetry.update();
-//            }
 
             DT.strafe2("right", 0.1, 20);
-            while(cam.pipeline.getLeftAlignedAnalysis().equals("NO")) {
-                telemetry.addData("Aligned: ", cam.pipeline.getLeftAlignedAnalysis().equals("NO"));
-                telemetry.addData("Avg Cb: ", cam.pipeline.getLeft_align_avgCb());
-                telemetry.addData("Avg Cr: ", cam.pipeline.getLeft_align_avgCr());
-                telemetry.addData("Avg Y: ", cam.pipeline.getLeft_align_avgY());
+            while(cam.pipeline.getCenterAlignedAnalysis().equals("NO")) {
+                telemetry.addData("Aligned: ", cam.pipeline.getCenterAlignedAnalysis().equals("NO"));
+                telemetry.addData("Avg Cb: ", cam.pipeline.getCenter_align_avgCb());
+                telemetry.addData("Avg Cr: ", cam.pipeline.getCenter_align_avgCr());
+                telemetry.addData("Avg Y: ", cam.pipeline.getCenter_align_avgY());
                 telemetry.addData("Position: ", position);
+                telemetry.addData("CENTER", 5);
                 telemetry.update();
             }
-            DT.drive(0.2, 6);
+
+            DT.drive(0.2, 4);
             wait(50);
 
             ILC.encoderLiftMove(3785);
@@ -83,7 +75,7 @@ public class goodRightAuto extends LinearOpMode {
 
             ILC.openClaw();
 
-            DT.drive(0.2, -5);
+            DT.drive(0.2, -3);
             DT.strafe("right", 0.4, 11);
 
             // get another cone
@@ -94,15 +86,17 @@ public class goodRightAuto extends LinearOpMode {
                 telemetry.update();
             }
 
-            DT.drive(0.3, 25);
+            DT.drive(0.4, 30);
             wait(200);
 
             ILC.closeClaw();
             wait(300);
             ILC.liftMove(3);
 
-            DT.drive(0.2, -20);
-            DT.turn(0.2, 90, "left");
+            wait(300);
+
+            DT.drive(0.4, -17);
+            DT.turn(0.2, 87, "left");
 
             ILC.liftMove(3);
             while(ILC.armMotor.isBusy()) {
@@ -110,51 +104,45 @@ public class goodRightAuto extends LinearOpMode {
                 telemetry.update();
             }
 
-            DT.strafe("left", 0.3, 20);
+            DT.strafe("left", 0.3, 30);
+
+            DT.turnToZero(0.2);
 
             DT.strafe2("right", 0.1, 20);
-            while(cam.pipeline.getLeftAlignedAnalysis().equals("NO")) {
-                telemetry.addData("Aligned: ", cam.pipeline.getLeftAlignedAnalysis().equals("NO"));
-                telemetry.addData("Avg Cb: ", cam.pipeline.getLeft_align_avgCb());
-                telemetry.addData("Avg Cr: ", cam.pipeline.getLeft_align_avgCr());
-                telemetry.addData("Avg Y: ", cam.pipeline.getLeft_align_avgY());
+            while(cam.pipeline.getCenterAlignedAnalysis().equals("NO")) {
+                telemetry.addData("Aligned: ", cam.pipeline.getCenterAlignedAnalysis().equals("NO"));
+                telemetry.addData("Avg Cb: ", cam.pipeline.getCenter_align_avgCb());
+                telemetry.addData("Avg Cr: ", cam.pipeline.getCenter_align_avgCr());
+                telemetry.addData("Avg Y: ", cam.pipeline.getCenter_align_avgY());
                 telemetry.addData("Position: ", position);
+                telemetry.addData("CENTER", 5);
                 telemetry.update();
             }
 
-            DT.drive(0.2, 7);
+            DT.drive(0.2, 5);
             wait(50);
 
             ILC.openClaw();
 
-            DT.drive(0.2, -5);
+            DT.drive(0.2, -4);
 
-            DT.strafe("right", 0.2, 11);
-
-            // park
             ILC.liftMove(1);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
+
+//            DT.strafe("right", 0.4, 11);
+
+            DT.turn(0.3, 83, "right");
 
             if(position.equals("right")) {
-                DT.strafe("right", 0.2, 27);
+                DT.drive(0.2, 30);
             } else if(position.equals("left")) {
-                DT.strafe("left", 0.2, 27);
+                DT.drive(0.2, -8);
+            } else {
+                DT.drive(0.3, 8);
             }
-
-            DT.drive(0.2, -12);
 
             ILC.liftMove(0);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
 
-            telemetry.addData("Position: %s", position);
-
-            telemetry.update();
+            DT.turn(0.3, 83, "left");
 
             break;
         }
