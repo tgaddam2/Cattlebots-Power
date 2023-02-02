@@ -7,15 +7,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.checkerframework.checker.units.qual.Angle;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 public class Drivetrain {
-    public DcMotor frontLeftDrive  = null;
-    public DcMotor backLeftDrive   = null;
-    public DcMotor frontRightDrive = null;
-    public DcMotor backRightDrive  = null;
+    public DcMotor FLMotor = null;
+    public DcMotor BLMotor = null;
+    public DcMotor FRMotor = null;
+    public DcMotor BRMotor = null;
 
     static private final double     COUNTS_PER_MOTOR_REV    = 384.5 ;
     static private final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
@@ -47,27 +46,27 @@ public class Drivetrain {
         if (opMode.opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            newFrontLeftTarget = frontLeftDrive.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
-            newBackLeftTarget = backLeftDrive.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
-            newFrontRightTarget = frontRightDrive.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
-            newBackRightTarget = backRightDrive.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
+            newFrontLeftTarget = FLMotor.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
+            newBackLeftTarget = BLMotor.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
+            newFrontRightTarget = FRMotor.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
+            newBackRightTarget = BRMotor.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
 
-            frontLeftDrive.setTargetPosition(newFrontLeftTarget);
-            backLeftDrive.setTargetPosition(newBackLeftTarget);
-            frontRightDrive.setTargetPosition(newFrontRightTarget);
-            backRightDrive.setTargetPosition(newBackRightTarget);
+            FLMotor.setTargetPosition(newFrontLeftTarget);
+            BLMotor.setTargetPosition(newBackLeftTarget);
+            FRMotor.setTargetPosition(newFrontRightTarget);
+            BRMotor.setTargetPosition(newBackRightTarget);
 
-            frontLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            frontRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FLMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BLMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FRMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BRMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // reset the timeout time and start motion.
             runtime.reset();
-            frontLeftDrive.setPower(Math.abs(speed));
-            backLeftDrive.setPower(Math.abs(speed));
-            frontRightDrive.setPower(Math.abs(speed));
-            backRightDrive.setPower(Math.abs(speed));
+            FLMotor.setPower(Math.abs(speed));
+            BLMotor.setPower(Math.abs(speed));
+            FRMotor.setPower(Math.abs(speed));
+            BRMotor.setPower(Math.abs(speed));
 
             // keep looping while we are still active, and there is time left, and both motors are running.
             // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
@@ -75,48 +74,110 @@ public class Drivetrain {
             // always end the motion as soon as possible.
             // However, if you require that BOTH motors have finished their moves before the robot continues
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
-            while (opMode.opModeIsActive() && (frontLeftDrive.isBusy() && frontRightDrive.isBusy())) {
+            while (opMode.opModeIsActive() && (FLMotor.isBusy() && FRMotor.isBusy())) {
 
                 // Display it for the driver.
                 opMode.telemetry.addData("Path1",  "Running to FL %7d :FR %7d :BL %7d :BR %7d", newFrontLeftTarget,  newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
                 opMode.telemetry.addData("Path2",  "Running at FL %7f :FR %7f :BL %7f :BR %7f",
-                        frontLeftDrive.getPower(),
-                        frontRightDrive.getPower(),
-                        backLeftDrive.getPower(),
-                        backRightDrive.getPower());
+                        FLMotor.getPower(),
+                        FRMotor.getPower(),
+                        BLMotor.getPower(),
+                        BRMotor.getPower());
                 opMode.telemetry.update();
             }
 
             // Stop all motion;
-            frontLeftDrive.setPower(0);
-            backLeftDrive.setPower(0);
-            frontRightDrive.setPower(0);
-            backRightDrive.setPower(0);
+            FLMotor.setPower(0);
+            BLMotor.setPower(0);
+            FRMotor.setPower(0);
+            BRMotor.setPower(0);
         }
     }
 
-    public void startDrive(double speed, String direction) {
-        double frontLeftSpeed = Math.abs(speed);
-        double backLeftSpeed = Math.abs(speed);
-        double frontRightSpeed = Math.abs(speed);
-        double backRightSpeed = Math.abs(speed);
+    public void pidDrive(double distance) {
+        int FLTarget;
+        int BLTarget;
+        int FRTarget;
+        int BRTarget;
 
-        direction = direction.toLowerCase();
+        initEncoders();
 
         // Ensure that the opmode is still active
         if (opMode.opModeIsActive()) {
 
-            if (direction.equals("back")) {
-                frontLeftSpeed *= Reverse;
-                backLeftSpeed *= Reverse;
-                frontRightSpeed *= Reverse;
-                backRightSpeed *= Reverse;
+            // Determine new target position, and pass to motor controller
+            FLTarget = FLMotor.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
+            BLTarget = BLMotor.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
+            FRTarget = FRMotor.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
+            BRTarget = BRMotor.getCurrentPosition() + (int)(distance * WHEEL_COUNTS_PER_INCH);
+
+            FRMotor.setTargetPosition(FRTarget);
+            FLMotor.setTargetPosition(FLTarget);
+            BRMotor.setTargetPosition(BRTarget);
+            BLMotor.setTargetPosition(BLTarget);
+
+            double kP = 0.002;
+            double kI = 0.002;
+            double kD = 0.002;
+
+            double FRError = FRTarget - FRMotor.getCurrentPosition();
+            double FLError = FLTarget - FLMotor.getCurrentPosition();
+            double BRError = BRTarget - BRMotor.getCurrentPosition();
+            double BLError = BLTarget - BLMotor.getCurrentPosition();
+
+            double FRIntegralSum = 0;
+            double FLIntegralSum = 0;
+            double BRIntegralSum = 0;
+            double BLIntegralSum = 0;
+
+            double FRDerivative = 0;
+            double FLDerivative = 0;
+            double BRDerivative = 0;
+            double BLDerivative = 0;
+
+            double FRLastError = 0;
+            double FLLastError = 0;
+            double BRLastError = 0;
+            double BLLastError = 0;
+
+            runtime.reset();
+
+            while (Math.abs(FRError) > 15 && Math.abs(FLError) > 15) {
+                FRError = FRTarget - FRMotor.getCurrentPosition();
+                FLError = FLTarget - FLMotor.getCurrentPosition();
+                BRError = BRTarget - BRMotor.getCurrentPosition();
+                BLError = BLTarget - BLMotor.getCurrentPosition();
+
+                FRIntegralSum = FRError * runtime.seconds();
+                FLIntegralSum = FLError * runtime.seconds();
+                BRIntegralSum = BRError * runtime.seconds();
+                BLIntegralSum = BLError * runtime.seconds();
+
+                FRDerivative = (FRError - FRLastError) / runtime.seconds();
+                FLDerivative = (FLError - FLLastError) / runtime.seconds();
+                BRDerivative = (BRError - BRLastError) / runtime.seconds();
+                BLDerivative = (BLError - BLLastError) / runtime.seconds();
+
+                FRLastError = FRError;
+                FLLastError = FLError;
+                BRLastError = BRError;
+                BLLastError = BLError;
+
+                runtime.reset();
+
+//                FRMotor.setPower((kP * FRError) + (kD * FRDerivative) + (kI * FRIntegralSum));
+//                FLMotor.setPower((kP * FLError) + (kD * FLDerivative) + (kI * FLIntegralSum));
+//                BRMotor.setPower((kP * BRError) + (kD * BRDerivative) + (kI * BRIntegralSum));
+//                BLMotor.setPower((kP * BLError) + (kD * BLDerivative) + (kI * BLIntegralSum));
+
+                FRMotor.setPower((kP * FRError));
+                FLMotor.setPower((kP * FRError));
+                BRMotor.setPower((kP * FRError));
+                BLMotor.setPower((kP * FRError));
             }
 
-            frontLeftDrive.setPower(frontLeftSpeed);
-            backLeftDrive.setPower(backLeftSpeed);
-            frontRightDrive.setPower(frontRightSpeed);
-            backRightDrive.setPower(backRightSpeed);
+            // Stop all motion;
+            stopMotors();
         }
     }
 
@@ -131,10 +192,10 @@ public class Drivetrain {
         // Ensure that the opmode is still active
         if (opMode.opModeIsActive()) {
             // Determine new target position, and pass to motor controller
-            newFrontLeftTarget = frontLeftDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
-            newBackLeftTarget = backLeftDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
-            newFrontRightTarget = frontRightDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
-            newBackRightTarget = backRightDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
+            newFrontLeftTarget = FLMotor.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
+            newBackLeftTarget = BLMotor.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
+            newFrontRightTarget = FRMotor.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
+            newBackRightTarget = BRMotor.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
 
             if (direction.equals("right")) {
                 newFrontLeftTarget *= Reverse;
@@ -148,39 +209,39 @@ public class Drivetrain {
                 newBackRightTarget *= Forward;
             }
 
-            frontLeftDrive.setTargetPosition(newFrontLeftTarget);
-            backLeftDrive.setTargetPosition(newBackLeftTarget);
-            frontRightDrive.setTargetPosition(newFrontRightTarget);
-            backRightDrive.setTargetPosition(newBackRightTarget);
+            FLMotor.setTargetPosition(newFrontLeftTarget);
+            BLMotor.setTargetPosition(newBackLeftTarget);
+            FRMotor.setTargetPosition(newFrontRightTarget);
+            BRMotor.setTargetPosition(newBackRightTarget);
 
-            frontLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            frontRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FLMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BLMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FRMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BRMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // reset the timeout time and start motion.
             runtime.reset();
-            frontLeftDrive.setPower(Math.abs(speed));
-            backLeftDrive.setPower(Math.abs(speed));
-            frontRightDrive.setPower(Math.abs(speed));
-            backRightDrive.setPower(Math.abs(speed));
+            FLMotor.setPower(Math.abs(speed));
+            BLMotor.setPower(Math.abs(speed));
+            FRMotor.setPower(Math.abs(speed));
+            BRMotor.setPower(Math.abs(speed));
 
-            while (opMode.opModeIsActive() && (frontLeftDrive.isBusy() && frontRightDrive.isBusy())) {
+            while (opMode.opModeIsActive() && (FLMotor.isBusy() && FRMotor.isBusy())) {
                 // Display it for the driver.
                 opMode.telemetry.addData("Path1",  "Running to FL %7d :FR %7d :BL %7d :BR %7d", newFrontLeftTarget,  newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
                 opMode.telemetry.addData("Path2",  "Running at FL %7f :FR %7f :BL %7f :BR %7f",
-                        frontLeftDrive.getPower(),
-                        frontRightDrive.getPower(),
-                        backLeftDrive.getPower(),
-                        backRightDrive.getPower());
+                        FLMotor.getPower(),
+                        FRMotor.getPower(),
+                        BLMotor.getPower(),
+                        BRMotor.getPower());
                 opMode.telemetry.update();
             }
 
             // Stop all motion;
-            frontLeftDrive.setPower(0);
-            backLeftDrive.setPower(0);
-            frontRightDrive.setPower(0);
-            backRightDrive.setPower(0);
+            FLMotor.setPower(0);
+            BLMotor.setPower(0);
+            FRMotor.setPower(0);
+            BRMotor.setPower(0);
         }
     }
 
@@ -195,10 +256,10 @@ public class Drivetrain {
         // Ensure that the opmode is still active
         if (opMode.opModeIsActive()) {
             // Determine new target position, and pass to motor controller
-            newFrontLeftTarget = frontLeftDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
-            newBackLeftTarget = backLeftDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
-            newFrontRightTarget = frontRightDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
-            newBackRightTarget = backRightDrive.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
+            newFrontLeftTarget = FLMotor.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
+            newBackLeftTarget = BLMotor.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
+            newFrontRightTarget = FRMotor.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
+            newBackRightTarget = BRMotor.getCurrentPosition() + (int) (distance * WHEEL_COUNTS_PER_INCH);
 
             if (direction.equals("right")) {
                 newFrontLeftTarget *= Reverse;
@@ -212,28 +273,28 @@ public class Drivetrain {
                 newBackRightTarget *= Forward;
             }
 
-            frontLeftDrive.setTargetPosition(newFrontLeftTarget);
-            backLeftDrive.setTargetPosition(newBackLeftTarget);
-            frontRightDrive.setTargetPosition(newFrontRightTarget);
-            backRightDrive.setTargetPosition(newBackRightTarget);
+            FLMotor.setTargetPosition(newFrontLeftTarget);
+            BLMotor.setTargetPosition(newBackLeftTarget);
+            FRMotor.setTargetPosition(newFrontRightTarget);
+            BRMotor.setTargetPosition(newBackRightTarget);
 
-            frontLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backLeftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            frontRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backRightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FLMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BLMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FRMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BRMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            frontLeftDrive.setPower(Math.abs(speed));
-            backLeftDrive.setPower(Math.abs(speed));
-            frontRightDrive.setPower(Math.abs(speed));
-            backRightDrive.setPower(Math.abs(speed));
+            FLMotor.setPower(Math.abs(speed));
+            BLMotor.setPower(Math.abs(speed));
+            FRMotor.setPower(Math.abs(speed));
+            BRMotor.setPower(Math.abs(speed));
         }
     }
 
     void turn(double power, double angle, String direction) {
-        frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FLMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BLMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FRMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BRMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         imu.resetYaw();
         wait(50);
@@ -243,10 +304,10 @@ public class Drivetrain {
             power *= -1;
         }
 
-        frontLeftDrive.setPower(power);
-        backLeftDrive.setPower(power);
-        frontRightDrive.setPower(-power);
-        backRightDrive.setPower(-power);
+        FLMotor.setPower(power);
+        BLMotor.setPower(power);
+        FRMotor.setPower(-power);
+        BRMotor.setPower(-power);
 
         while (opMode.opModeIsActive() && Math.abs(angles.getYaw(AngleUnit.DEGREES)) < angle) {
             opMode.telemetry.addData("heading", angles.getYaw(AngleUnit.DEGREES));
@@ -256,10 +317,10 @@ public class Drivetrain {
 
         imu.resetYaw();
 
-        frontLeftDrive.setPower(0);
-        backLeftDrive.setPower(0);
-        frontRightDrive.setPower(0);
-        backRightDrive.setPower(0);
+        FLMotor.setPower(0);
+        BLMotor.setPower(0);
+        FRMotor.setPower(0);
+        BRMotor.setPower(0);
 
         initEncoders();
     }
@@ -272,19 +333,19 @@ public class Drivetrain {
             direction = "left";
         }
 
-        frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FLMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BLMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FRMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BRMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         if (direction.equals("left")) {
             power *= -1;
         }
 
-        frontLeftDrive.setPower(power);
-        backLeftDrive.setPower(power);
-        frontRightDrive.setPower(-power);
-        backRightDrive.setPower(-power);
+        FLMotor.setPower(power);
+        BLMotor.setPower(power);
+        FRMotor.setPower(-power);
+        BRMotor.setPower(-power);
 
         runtime.reset();
 
@@ -294,46 +355,51 @@ public class Drivetrain {
             angles = imu.getRobotYawPitchRollAngles();
         }
 
-        frontLeftDrive.setPower(0);
-        backLeftDrive.setPower(0);
-        frontRightDrive.setPower(0);
-        backRightDrive.setPower(0);
+        FLMotor.setPower(0);
+        BLMotor.setPower(0);
+        FRMotor.setPower(0);
+        BRMotor.setPower(0);
 
         initEncoders();
     }
 
-    public void motorsStop() {
-        frontLeftDrive.setPower(0);
-        backLeftDrive.setPower(0);
-        frontRightDrive.setPower(0);
-        backRightDrive.setPower(0);
+    public void stopMotors() {
+        FLMotor.setPower(0);
+        BLMotor.setPower(0);
+        FRMotor.setPower(0);
+        BRMotor.setPower(0);
     }
 
     public void initDrivetrain(HardwareMap hwMap) {
-        frontLeftDrive = hwMap.get(DcMotor.class, "FL");
-        backLeftDrive = hwMap.get(DcMotor.class, "BL");
-        frontRightDrive = hwMap.get(DcMotor.class, "FR");
-        backRightDrive = hwMap.get(DcMotor.class, "BR");
+        FLMotor = hwMap.get(DcMotor.class, "FL");
+        BLMotor = hwMap.get(DcMotor.class, "BL");
+        FRMotor = hwMap.get(DcMotor.class, "FR");
+        BRMotor = hwMap.get(DcMotor.class, "BR");
 
-        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
-        backRightDrive.setDirection(DcMotor.Direction.FORWARD);
+        FLMotor.setDirection(DcMotor.Direction.REVERSE);
+        BLMotor.setDirection(DcMotor.Direction.REVERSE);
+        FRMotor.setDirection(DcMotor.Direction.FORWARD);
+        BRMotor.setDirection(DcMotor.Direction.FORWARD);
 
-        frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FLMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BLMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FRMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BRMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        frontLeftDrive.setPower(0);
-        backLeftDrive.setPower(0);
-        frontRightDrive.setPower(0);
-        backRightDrive.setPower(0);
+        FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        FLMotor.setPower(0);
+        BLMotor.setPower(0);
+        FRMotor.setPower(0);
+        BRMotor.setPower(0);
     }
 
     public void initGyro(HardwareMap hwMap) {
@@ -352,15 +418,15 @@ public class Drivetrain {
     }
 
     void initEncoders() {
-        frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FLMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BLMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FRMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BRMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void wait(int milliseconds) {

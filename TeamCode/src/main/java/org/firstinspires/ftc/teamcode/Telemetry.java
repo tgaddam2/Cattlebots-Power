@@ -25,10 +25,10 @@ public class Telemetry extends LinearOpMode
         while (opModeIsActive()) {
             telemetry.update();
 
-            telemetry.addData("FR: %d", drivetrain.frontRightDrive.getCurrentPosition());
-            telemetry.addData("FL: %d", drivetrain.frontLeftDrive.getCurrentPosition());
-            telemetry.addData("BR: %d", drivetrain.backRightDrive.getCurrentPosition());
-            telemetry.addData("BL: %d\n", drivetrain.backLeftDrive.getCurrentPosition());
+            telemetry.addData("FR: %d", drivetrain.FRMotor.getCurrentPosition());
+            telemetry.addData("FL: %d", drivetrain.FLMotor.getCurrentPosition());
+            telemetry.addData("BR: %d", drivetrain.BRMotor.getCurrentPosition());
+            telemetry.addData("BL: %d\n", drivetrain.BLMotor.getCurrentPosition());
 
             telemetry.addData("Arm Motor: %d", ILC.armMotor.getCurrentPosition());
 

@@ -39,9 +39,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 
-@Autonomous(name = "rightAuto")
+@Autonomous(name = "Drive Test")
 
-public class RightAuto extends LinearOpMode {
+public class DriveTest extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain DT = new Drivetrain(this);
 
@@ -65,96 +65,7 @@ public class RightAuto extends LinearOpMode {
             wait(1000);
             position = cam.getStringPosition().toLowerCase();
 
-            //score starting cone
-            ILC.closeClaw();
-
-            DT.drive(0.3, 48);
-            ILC.liftMove(3);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
-            DT.turn(0.2, 0, "left");
-
-            DT.strafe("left", 0.4, 12);
-            DT.drive(0.2, 5);
-
-            wait(500);
-
-            ILC.openClaw();
-
-            DT.drive(0.2, -5);
-            DT.strafe("right", 0.4, 11);
-
-            // get cone from stack
-//            DT.turn(0.2, 90, "right");
-//            ILC.coneMove(5);
-//            while(ILC.armMotor.isBusy()) {
-//                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-//                telemetry.update();
-//            }
-//            DT.drive(0.2, 28);
-//
-//            wait(500);
-//
-//            ILC.closeClaw();
-//            wait(500);
-//
-//            // go back to junction
-//            ILC.liftMove(1);
-//            while(ILC.armMotor.isBusy()) {
-//                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-//                telemetry.update();
-//            }
-//
-//            DT.drive(0.2, -28);
-//
-//            DT.turn(0.2, 90, "left");
-//            ILC.liftMove(3);
-//            while(ILC.armMotor.isBusy()) {
-//                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-//                telemetry.update();
-//            }
-//            ILC.encoderMove(ILC.armMotor.getCurrentPosition() - 300);
-//            while(ILC.armMotor.isBusy()) {
-//                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-//                telemetry.update();
-//            }
-//
-//            DT.strafe("left", 0.4, 2);
-//            DT.drive(0.2, 6);
-//
-//            wait(500);
-//
-//            ILC.openClaw();
-
-//            DT.drive(0.2, -5);
-//            DT.strafe("right", 0.4, 10);
-
-            // park
-            ILC.liftMove(0);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
-
-            if(position.equals("right")) {
-                DT.strafe("right", 0.2, 29);
-            } else if(position.equals("left")) {
-                DT.strafe("left", 0.2, 23);
-            }
-
-            DT.drive(0.2, -12);
-
-            ILC.liftMove(0);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
-
-            telemetry.addData("Position: %s", position);
-
-            telemetry.update();
+            DT.pidDrive(60);
 
             break;
         }

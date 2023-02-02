@@ -10,9 +10,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 
-@Autonomous(name = "goodRightAuto")
+@Autonomous(name = "doubleRightAuto")
 
-public class goodRightAuto extends LinearOpMode {
+public class doubleRightAuto extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain DT = new Drivetrain(this);
 
@@ -73,6 +73,7 @@ public class goodRightAuto extends LinearOpMode {
             }
 
             ILC.openClaw();
+            ILC.liftMove(3);
 
             DT.drive(0.2, -4);
 

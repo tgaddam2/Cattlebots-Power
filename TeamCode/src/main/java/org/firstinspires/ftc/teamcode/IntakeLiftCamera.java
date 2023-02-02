@@ -20,14 +20,14 @@ public class IntakeLiftCamera {
 
     CameraBlueOrange camera;
 
-    double ArmSpeed = 0.5;
+    double ArmSpeed = 0.8;
 
     int highJunctionPos = 4200;
     int midJunctionPos = 3000;
     int lowJunctionPos = 1800;
     int groundJunctionPos = 0;
 
-    int cone5Pos = 760;
+    int cone5Pos = 750;
     int cone4Pos = 540;
     int cone3Pos = 415;
     int cone2Pos = 220;
@@ -49,8 +49,11 @@ public class IntakeLiftCamera {
     }
 
     public void closeClaw() {
-        armLeft.setPosition(0.35);
-        armRight.setPosition(0.65);
+//        armLeft.setPosition(0.35);
+//        armRight.setPosition(0.65);
+
+        armLeft.setPosition(0.3);
+        armRight.setPosition(0.7);
     }
 
     public void openClaw() {
@@ -79,10 +82,10 @@ public class IntakeLiftCamera {
         armMotor.setPower(0.8);
     }
 
-    public void encoderLiftMove(int position) {
+    public void encoderLiftMove(int position, double power) {
         armMotor.setTargetPosition(position);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(0.8);
+        armMotor.setPower(power);
     }
 
     public void coneMove(int position) {
@@ -113,10 +116,10 @@ public class IntakeLiftCamera {
         int encoderPos = armMotor.getCurrentPosition();
 
         if(direction.equals("up")) {
-            encoderPos -= 100;
+            encoderPos += 100;
         }
         if(direction.equals("down")) {
-            encoderPos += 100;
+            encoderPos -= 100;
         }
 
         armMotor.setTargetPosition(encoderPos);

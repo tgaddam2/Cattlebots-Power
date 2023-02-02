@@ -1,32 +1,3 @@
-/* Copyright (c) 2017 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -39,9 +10,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 
-@Autonomous(name = "leftAuto")
+@Autonomous(name = "singleLeftAuto")
 
-public class LeftAuto extends LinearOpMode {
+public class singleLeftAuto extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain DT = new Drivetrain(this);
 
@@ -62,55 +33,64 @@ public class LeftAuto extends LinearOpMode {
         // Loop and update the dashboard
         while (opModeIsActive()) {
             String position = cam.getStringPosition().toLowerCase();
-            wait(2000);
+            wait(1000);
             position = cam.getStringPosition().toLowerCase();
 
             //score starting cone
+            ILC.armLeft.setPosition(0.4);
+            ILC.armRight.setPosition(0.6);
+
+            DT.drive(0.3, 50);
+
             ILC.closeClaw();
 
-            DT.drive(0.3, 48);
             ILC.liftMove(3);
             while(ILC.armMotor.isBusy()) {
                 telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
                 telemetry.update();
             }
-            DT.turn(0.2, 0, "left");
-
-            DT.strafe("right", 0.4, 13);
-            DT.drive(0.2, 4);
-
-            wait(500);
-
-            ILC.openClaw();
-
-            DT.drive(0.2, -4);
-            DT.strafe("left", 0.2, 11);
             DT.turnToZero(0.2);
 
-            // park
-            ILC.liftMove(1);
+            DT.strafe2("right", 0.1, 20);
+            while(cam.pipeline.getCenterAlignedAnalysis().equals("NO")) {
+                telemetry.addData("Aligned: ", cam.pipeline.getCenterAlignedAnalysis().equals("NO"));
+                telemetry.addData("Avg Cb: ", cam.pipeline.getCenter_align_avgCb());
+                telemetry.addData("Avg Cr: ", cam.pipeline.getCenter_align_avgCr());
+                telemetry.addData("Avg Y: ", cam.pipeline.getCenter_align_avgY());
+                telemetry.addData("Position: ", position);
+                telemetry.addData("CENTER", 5);
+                telemetry.update();
+            }
+
+            DT.drive(0.2, 5);
+            wait(50);
+
+            ILC.encoderLiftMove(3785, 0.8);
             while(ILC.armMotor.isBusy()) {
                 telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
                 telemetry.update();
             }
+
+            ILC.openClaw();
+            ILC.liftMove(3);
+
+            DT.drive(0.2, -3);
+
+            ILC.liftMove(1);
+
+            DT.turn(0.3, 83, "left");
 
             if(position.equals("right")) {
-                DT.strafe("right", 0.2, 26);
+                DT.drive(0.2, -10);
             } else if(position.equals("left")) {
-                DT.strafe("left", 0.2, 28);
+                DT.drive(0.2, 30);
+            } else {
+                DT.drive(0.3, 8);
             }
-
-            DT.drive(0.2, -10);
 
             ILC.liftMove(0);
-            while(ILC.armMotor.isBusy()) {
-                telemetry.addData("Arm Motor: ", ILC.armMotor.getCurrentPosition());
-                telemetry.update();
-            }
 
-            telemetry.addData("Position: %s", position);
-
-            telemetry.update();
+            DT.turn(0.3, 83, "right");
 
             break;
         }

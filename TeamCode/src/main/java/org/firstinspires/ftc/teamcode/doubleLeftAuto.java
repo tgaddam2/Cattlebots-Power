@@ -10,9 +10,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 
-@Autonomous(name = "goodLeftAuto")
+@Autonomous(name = "doubleLeftAuto")
 
-public class goodLeftAuto extends LinearOpMode {
+public class doubleLeftAuto extends LinearOpMode {
     IntakeLiftCamera ILC = new IntakeLiftCamera(this);
     Drivetrain DT = new Drivetrain(this);
 
@@ -33,7 +33,7 @@ public class goodLeftAuto extends LinearOpMode {
         // Loop and update the dashboard
         while (opModeIsActive()) {
             String position = cam.getStringPosition().toLowerCase();
-            wait(500);
+            wait(1000);
             position = cam.getStringPosition().toLowerCase();
 
             //score starting cone
@@ -72,6 +72,7 @@ public class goodLeftAuto extends LinearOpMode {
             }
 
             ILC.openClaw();
+            ILC.liftMove(3);
 
             DT.drive(0.2, -3);
             DT.strafe("left", 0.4, 11);

@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "TeleOpDriveTest")
 
@@ -37,10 +36,10 @@ public class TeleOpDriveTest extends LinearOpMode
             final double FRPower = speedScale * (r * Math.sin(robotAngle) - rightX);
             final double BRPower = speedScale * (r * Math.cos(robotAngle) - rightX);
 
-            drivetrain.frontLeftDrive.setPower(FLPower);
-            drivetrain.backLeftDrive.setPower(BLPower);
-            drivetrain.frontRightDrive.setPower(FRPower);
-            drivetrain.backRightDrive.setPower(BRPower);
+            drivetrain.FLMotor.setPower(FLPower);
+            drivetrain.BLMotor.setPower(BLPower);
+            drivetrain.FRMotor.setPower(FRPower);
+            drivetrain.BRMotor.setPower(BRPower);
 
         }
     }

@@ -91,7 +91,7 @@ public class CameraBlueOrange
             YES,
             NO
         }
-        public enum LeftAligned {
+        public enum CenterAligned {
             YES,
             NO
         }
@@ -112,13 +112,11 @@ public class CameraBlueOrange
         static final int SLEEVE_REGION_WIDTH = 25;
         static final int SLEEVE_REGION_HEIGHT = 15;
 
-        static final Point RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT = new Point(0,105);
-        static final int RIGHT_ALIGN_REGION_WIDTH = 145;
-        static final int RIGHT_ALIGN_REGION_HEIGHT = 10;
+        static final Point RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT = new Point(5,10);
+        static final Point CENTER_ALIGN_TOPLEFT_ANCHOR_POINT = new Point(5,50);
 
-        static final Point LEFT_ALIGN_TOPLEFT_ANCHOR_POINT = new Point(0,50);
-        static final int LEFT_ALIGN_REGION_WIDTH = 50;
-        static final int LEFT_ALIGN_REGION_HEIGHT = 10;
+        static final int ALIGN_REGION_WIDTH = 50;
+        static final int ALIGN_REGION_HEIGHT = 10;
 
         /*
          * Points which actually define the sample region rectangles, derived from above values
@@ -148,29 +146,29 @@ public class CameraBlueOrange
                 RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT.x,
                 RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT.y);
         Point right_align_pointB = new Point(
-                RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT.x + RIGHT_ALIGN_REGION_WIDTH,
-                RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT.y + RIGHT_ALIGN_REGION_HEIGHT);
+                RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT.x + ALIGN_REGION_WIDTH,
+                RIGHT_ALIGN_TOPLEFT_ANCHOR_POINT.y + ALIGN_REGION_HEIGHT);
 
-        Point left_align_pointA = new Point(
-                LEFT_ALIGN_TOPLEFT_ANCHOR_POINT.x,
-                LEFT_ALIGN_TOPLEFT_ANCHOR_POINT.y);
-        Point left_align_pointB = new Point(
-                LEFT_ALIGN_TOPLEFT_ANCHOR_POINT.x + LEFT_ALIGN_REGION_WIDTH,
-                LEFT_ALIGN_TOPLEFT_ANCHOR_POINT.y + LEFT_ALIGN_REGION_HEIGHT);
+        Point center_align_pointA = new Point(
+                CENTER_ALIGN_TOPLEFT_ANCHOR_POINT.x,
+                CENTER_ALIGN_TOPLEFT_ANCHOR_POINT.y);
+        Point center_align_pointB = new Point(
+                CENTER_ALIGN_TOPLEFT_ANCHOR_POINT.x + ALIGN_REGION_WIDTH,
+                CENTER_ALIGN_TOPLEFT_ANCHOR_POINT.y + ALIGN_REGION_HEIGHT);
 
         /*
          * Working variables
          */
         Mat sleeve_Y, sleeve_Cr, sleeve_Cb;
         Mat right_align_Y, right_align_Cr, right_align_Cb;
-        Mat left_align_Y, left_align_Cr, left_align_Cb;
+        Mat center_align_Y, center_align_Cr, center_align_Cb;
         Mat YCrCb = new Mat();
         Mat YImage = new Mat();
         Mat CrImage = new Mat();
         Mat CbImage = new Mat();
         int sleeve_avgY, sleeve_avgCr, sleeve_avgCb;
         int right_align_avgY, right_align_avgCr, right_align_avgCb;
-        int left_align_avgY, left_align_avgCr, left_align_avgCb;
+        int center_align_avgY, center_align_avgCr, center_align_avgCb;
 
         Mat RGB = new Mat();
         Mat RImage = new Mat();
@@ -185,8 +183,8 @@ public class CameraBlueOrange
         private volatile RightAligned rightAligned = RightAligned.NO;
         private volatile String StringRightAligned = "NO";
 
-        private volatile LeftAligned leftAligned = LeftAligned.NO;
-        private volatile String StringLeftAligned = "NO";
+        private volatile CenterAligned centerAligned = CenterAligned.NO;
+        private volatile String StringCenterAligned = "NO";
 
         /*
          * This function takes the RGB frame, converts to YCrCb,
@@ -225,9 +223,9 @@ public class CameraBlueOrange
             right_align_Cr = CrImage.submat(new Rect(right_align_pointA, right_align_pointB));
             right_align_Cb = CbImage.submat(new Rect(right_align_pointA, right_align_pointB));
 
-            left_align_Y = YImage.submat(new Rect(left_align_pointA, left_align_pointB));
-            left_align_Cr = CrImage.submat(new Rect(left_align_pointA, left_align_pointB));
-            left_align_Cb = CbImage.submat(new Rect(left_align_pointA, left_align_pointB));
+            center_align_Y = YImage.submat(new Rect(center_align_pointA, center_align_pointB));
+            center_align_Cr = CrImage.submat(new Rect(center_align_pointA, center_align_pointB));
+            center_align_Cb = CbImage.submat(new Rect(center_align_pointA, center_align_pointB));
         }
 
         @Override
@@ -287,9 +285,9 @@ public class CameraBlueOrange
             right_align_avgCr = (int) Core.mean(right_align_Cr).val[0];
             right_align_avgCb = (int) Core.mean(right_align_Cb).val[0];
 
-            left_align_avgY = (int) Core.mean(left_align_Y).val[0];
-            left_align_avgCr = (int) Core.mean(left_align_Cr).val[0];
-            left_align_avgCb = (int) Core.mean(left_align_Cb).val[0];
+            center_align_avgY = (int) Core.mean(center_align_Y).val[0];
+            center_align_avgCr = (int) Core.mean(center_align_Cr).val[0];
+            center_align_avgCb = (int) Core.mean(center_align_Cb).val[0];
 
             Imgproc.rectangle(
                     input, // Buffer to draw on
@@ -307,8 +305,8 @@ public class CameraBlueOrange
 
             Imgproc.rectangle(
                     input, // Buffer to draw on
-                    left_align_pointA, // First point which defines the rectangle
-                    left_align_pointB, // Second point which defines the rectangle
+                    center_align_pointA, // First point which defines the rectangle
+                    center_align_pointB, // Second point which defines the rectangle
                     GREEN, // The color the rectangle is drawn in
                     2); // Thickness of the rectangle lines
 
@@ -362,20 +360,20 @@ public class CameraBlueOrange
                 StringRightAligned = "NO";
             }
 
-            if(left_align_avgCb >= 40 && left_align_avgCb <= 110) {
-                leftAligned = leftAligned.YES; // Record our analysis
-                StringLeftAligned = "YES";
+            if(center_align_avgCb >= 40 && center_align_avgCb <= 110) {
+                centerAligned = centerAligned.YES; // Record our analysis
+                StringCenterAligned = "YES";
 
                 Imgproc.rectangle(
                         input, // Buffer to draw on
-                        left_align_pointA, // First point which defines the rectangle
-                        left_align_pointB, // Second point which defines the rectangle
+                        center_align_pointA, // First point which defines the rectangle
+                        center_align_pointB, // Second point which defines the rectangle
                         YELLOW, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
             else {
-                leftAligned = leftAligned.NO;
-                StringLeftAligned = "NO";
+                centerAligned = centerAligned.NO;
+                StringCenterAligned = "NO";
             }
 
             /*
@@ -403,9 +401,9 @@ public class CameraBlueOrange
         {
             return StringRightAligned;
         }
-        public String getLeftAlignedAnalysis()
+        public String getCenterAlignedAnalysis()
         {
-            return StringLeftAligned;
+            return StringCenterAligned;
         }
 
         public int getSleeve_avgY() { return sleeve_avgY; }
@@ -422,14 +420,14 @@ public class CameraBlueOrange
             return right_align_avgCb;
         }
 
-        public int getLeft_align_avgY() {
-            return left_align_avgY;
+        public int getCenter_align_avgY() {
+            return center_align_avgY;
         }
-        public int getLeft_align_avgCr() {
-            return left_align_avgCr;
+        public int getCenter_align_avgCr() {
+            return center_align_avgCr;
         }
-        public int getLeft_align_avgCb() {
-            return left_align_avgCb;
+        public int getCenter_align_avgCb() {
+            return center_align_avgCb;
         }
     }
 }
