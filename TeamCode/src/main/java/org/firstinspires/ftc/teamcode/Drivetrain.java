@@ -75,7 +75,6 @@ public class Drivetrain {
             // However, if you require that BOTH motors have finished their moves before the robot continues
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
             while (opMode.opModeIsActive() && (FLMotor.isBusy() && FRMotor.isBusy())) {
-
                 // Display it for the driver.
                 opMode.telemetry.addData("Path1",  "Running to FL %7d :FR %7d :BL %7d :BR %7d", newFrontLeftTarget,  newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
                 opMode.telemetry.addData("Path2",  "Running at FL %7f :FR %7f :BL %7f :BR %7f",
@@ -84,6 +83,10 @@ public class Drivetrain {
                         BLMotor.getPower(),
                         BRMotor.getPower());
                 opMode.telemetry.update();
+
+                if(opMode.isStopRequested()) {
+                    break;
+                }
             }
 
             // Stop all motion;
@@ -235,6 +238,10 @@ public class Drivetrain {
                         BLMotor.getPower(),
                         BRMotor.getPower());
                 opMode.telemetry.update();
+
+                if(opMode.isStopRequested()) {
+                    break;
+                }
             }
 
             // Stop all motion;
@@ -313,6 +320,10 @@ public class Drivetrain {
             opMode.telemetry.addData("heading", angles.getYaw(AngleUnit.DEGREES));
             opMode.telemetry.update();
             angles = imu.getRobotYawPitchRollAngles();
+
+            if(opMode.isStopRequested()) {
+                break;
+            }
         }
 
         imu.resetYaw();
@@ -353,6 +364,10 @@ public class Drivetrain {
             opMode.telemetry.addData("heading", angles.getYaw(AngleUnit.DEGREES));
             opMode.telemetry.update();
             angles = imu.getRobotYawPitchRollAngles();
+
+            if(opMode.isStopRequested()) {
+                break;
+            }
         }
 
         FLMotor.setPower(0);
@@ -432,6 +447,10 @@ public class Drivetrain {
     public void wait(int milliseconds) {
         ElapsedTime waitTimer = new ElapsedTime();
         waitTimer.startTime();
-        while(waitTimer.milliseconds() < milliseconds) {}
+        while(opMode.opModeIsActive() && waitTimer.milliseconds() < milliseconds) {
+            if(opMode.isStopRequested()) {
+                break;
+            }
+        }
     }
 }

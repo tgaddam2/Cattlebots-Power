@@ -159,6 +159,10 @@ public class IntakeLiftCamera {
 
     private void sleep(double millisec) {
         sleepTimer.reset();
-        while(sleepTimer.milliseconds() < millisec) {}
+        while(sleepTimer.milliseconds() < millisec) {
+            if(opMode.isStopRequested()) {
+                break;
+            }
+        }
     }
 }

@@ -129,10 +129,10 @@ public class TeleOpFC extends LinearOpMode
             }
 
             if(gamepad2.left_trigger > 0.75) {
-                armSpeed = 0.8;
+                armSpeed = 0.9;
             }
             else {
-                armSpeed = 0.5;
+                armSpeed = 0.6;
             }
 
             if(gamepad2.left_stick_button) {

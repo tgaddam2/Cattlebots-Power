@@ -36,6 +36,8 @@ public class singleLeftAuto extends LinearOpMode {
             wait(1000);
             position = cam.getStringPosition().toLowerCase();
 
+            wait(5000);
+
             //score starting cone
             ILC.armLeft.setPosition(0.4);
             ILC.armRight.setPosition(0.6);
@@ -52,7 +54,7 @@ public class singleLeftAuto extends LinearOpMode {
             DT.turnToZero(0.2);
 
             DT.strafe2("right", 0.1, 20);
-            while(cam.pipeline.getCenterAlignedAnalysis().equals("NO")) {
+            while(opModeIsActive() && cam.pipeline.getCenterAlignedAnalysis().equals("NO")) {
                 telemetry.addData("Aligned: ", cam.pipeline.getCenterAlignedAnalysis().equals("NO"));
                 telemetry.addData("Avg Cb: ", cam.pipeline.getCenter_align_avgCb());
                 telemetry.addData("Avg Cr: ", cam.pipeline.getCenter_align_avgCr());
@@ -60,6 +62,10 @@ public class singleLeftAuto extends LinearOpMode {
                 telemetry.addData("Position: ", position);
                 telemetry.addData("CENTER", 5);
                 telemetry.update();
+
+                if(isStopRequested()) {
+                    break;
+                }
             }
 
             DT.drive(0.2, 5);
